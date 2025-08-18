@@ -1,8 +1,9 @@
 import React from 'react'
+import InstructorDashboardPageComponent from './_components/InstructorDashboardPageComponent'
 
 const InstructorDashboardPage = () => {
   return (
-    <div>InstructorDashboardPage</div>
+    <InstructorDashboardPageComponent />
   )
 }
 
