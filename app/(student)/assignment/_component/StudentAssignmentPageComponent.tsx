@@ -144,7 +144,7 @@ const StudentAssignmentPageComponent = () => {
                   </p>
                 </div>
                 <Textarea
-                  placeholder="Enter your submission..."
+                  placeholder="Submit the link to your uploaded file"
                   value={submissionText}
                   onChange={(e) => setSubmissionText(e.target.value)}
                   rows={6}

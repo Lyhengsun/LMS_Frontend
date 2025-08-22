@@ -15,12 +15,9 @@ import { useNotifications } from '@/lib/hooks/useNotifications';
 import { getUserRole } from '@/lib/utils';
 import { CalendarDays, CheckCircle, Clock, Download, Eye, FileText, Plus, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 const InstructorAssignmentPageComponent = () => {
-    // const userRole = getUserRole();
-    const userRole = "instructor";
-    const router = useRouter();
   const { assignments, addAssignment, updateAssignment, deleteAssignment, getAssignmentSubmissions, gradeSubmission } = useAssignmentStore();
   const { addNotification } = useNotifications();
   const { toast } = useToast();
@@ -31,24 +28,14 @@ const InstructorAssignmentPageComponent = () => {
   const [newAssignment, setNewAssignment] = useState({
     title: '',
     description: '',
-    type: '',
-    difficulty: '',
     dueDate: '',
     points: '',
     estimatedTime: '',
     course: 'React Development'
   });
 
-  // Redirect students to their dedicated assignment page
-  useEffect(() => {
-    if (userRole === 'student') {
-      router.push('/student/assignments');
-    }
-  }, [userRole]);
-
   const handleCreateAssignment = () => {
-    if (!newAssignment.title || !newAssignment.description || !newAssignment.type || 
-        !newAssignment.difficulty || !newAssignment.dueDate || !newAssignment.points) {
+    if (!newAssignment.title || !newAssignment.description || !newAssignment.dueDate || !newAssignment.points) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -67,25 +54,14 @@ const InstructorAssignmentPageComponent = () => {
       dueDate: newAssignment.dueDate,
       status: 'active',
       points: parseInt(newAssignment.points) || 0,
-      type: newAssignment.type,
-      difficulty: newAssignment.difficulty,
       estimatedTime: newAssignment.estimatedTime,
       attachedFile: attachedFileName,
       createdBy: 'Instructor'
     });
 
-    // Notify students
-    addNotification({
-      title: 'New Assignment Available',
-      message: `New assignment "${assignment.title}" has been created${attachedFileName ? ' with attached materials' : ''}. Due: ${new Date(assignment.dueDate).toLocaleDateString()}`,
-      priority: 'high'
-    });
-
     setNewAssignment({ 
       title: '', 
       description: '', 
-      type: '', 
-      difficulty: '', 
       dueDate: '', 
       points: '', 
       estimatedTime: '',
@@ -145,18 +121,6 @@ const InstructorAssignmentPageComponent = () => {
     link.click();
   };
 
-  // Show loading or redirect message for students
-  if (userRole === 'student') {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Redirecting to your assignments...</p>
-        </div>
-      </div>
-    );
-  }
-
   // Instructor and Admin view
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -212,37 +176,6 @@ const InstructorAssignmentPageComponent = () => {
                       acceptedTypes=".pdf,.doc,.docx,.zip,.txt"
                       maxSize={25}
                     />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Type *</label>
-                      <Select value={newAssignment.type} onValueChange={(value) => setNewAssignment({...newAssignment, type: value})}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Essay">Essay</SelectItem>
-                          <SelectItem value="Project">Project</SelectItem>
-                          <SelectItem value="Presentation">Presentation</SelectItem>
-                          <SelectItem value="Research">Research</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Difficulty *</label>
-                      <Select value={newAssignment.difficulty} onValueChange={(value) => setNewAssignment({...newAssignment, difficulty: value})}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select difficulty" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Easy">Easy</SelectItem>
-                          <SelectItem value="Medium">Medium</SelectItem>
-                          <SelectItem value="Hard">Hard</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -410,9 +343,6 @@ const InstructorAssignmentPageComponent = () => {
                           </div>
                           <div className="text-sm text-gray-600">
                             Submissions: {submissions.length}
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            Type: {assignment.type}
                           </div>
                         </div>
                         

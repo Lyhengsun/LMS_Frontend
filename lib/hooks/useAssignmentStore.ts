@@ -9,8 +9,6 @@ interface Assignment {
   dueDate: string;
   status: string;
   points: number;
-  type: string;
-  difficulty: string;
   estimatedTime: string;
   attachedFile?: string; // New field for instructor file uploads
   submissions?: StudentSubmission[];
