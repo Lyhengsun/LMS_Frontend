@@ -1,5 +1,5 @@
 import React from "react";
-import SettingPageComponent from "./_components/SettingPageComponent";
+import SettingPageComponent from "../_components/SettingPageComponent";
 
 const SettingPage = () => {
   return <SettingPageComponent />;

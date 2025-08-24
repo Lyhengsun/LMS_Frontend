@@ -24,10 +24,10 @@ const getSidebarItems = (role: string | null): SidebarItem[] => {
   switch (role) {
     case 'admin':
       return [
-        { label: 'Dashboard', icon: LayoutDashboard, path: '/admin-dashboard' },
-        { label: 'User Management', icon: Users, path: '/user-management' },
-        { label: 'Course Management', icon: BookOpen, path: '/course-management' },
-        { label: 'Settings', icon: Settings, path: '/settings' },
+        { label: 'Dashboard', icon: LayoutDashboard, path: '/admin/dashboard' },
+        { label: 'User Management', icon: Users, path: '/admin/user-management' },
+        { label: 'Course Management', icon: BookOpen, path: '/admin/course-management' },
+        { label: 'Settings', icon: Settings, path: '/admin/settings' },
       ];
     case 'instructor':
       return [
@@ -59,7 +59,7 @@ const getRoleActiveClass = () => {
 export const Sidebar = ({role = "student"} : {role? : string}) => {
   const router = useRouter();
   const pathname = usePathname();
-  const userRole = getUserRole();
+  const userRole = role;
   // const userRole = "instructor";
   
   const sidebarItems = getSidebarItems(userRole);

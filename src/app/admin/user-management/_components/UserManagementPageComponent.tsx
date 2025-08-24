@@ -1,8 +1,7 @@
-"use client"
-import { Sidebar } from "@/src/components/Sidebar";
-import { Badge } from "@/src/components/ui/badge";
-import { Button } from "@/src/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card";
+"use client";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -10,47 +9,34 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/src/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/src/components/ui/dropdown-menu";
-import { Input } from "@/src/components/ui/input";
-import { Label } from "@/src/components/ui/label";
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/src/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
-import { useToast } from "@/src/components/ui/use-toast";
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Ban,
-  CheckCircle,
   Clock,
-  Eye,
   GraduationCap,
-  Key,
-  MoreVertical,
   Plus,
-  Search,
-  Shield,
-  Trash2,
   UserCheck,
   Users,
-  XCircle,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import AllUserTabComponent from "./AllUserTabComponent";
+import { toast } from "sonner";
+import PendingApprovalUserTabComponent from "./PendingApprovalUserTabComponent";
 
 interface User {
   id: string;
   name: string;
   email: string;
-  role: "student" | "instructor" | "admin";
+  role: "ROLE_STUDENT" | "ROLE_INSTRUCTOR" | "ROLE_ADMIN";
   status: "active" | "disabled" | "revoked";
   joinDate: string;
   lastActive: string;
@@ -66,15 +52,13 @@ interface PendingRegistration {
   firstName: string;
   lastName: string;
   email: string;
-  role: "student" | "instructor";
+  role: "ROLE_STUDENT" | "ROLE_INSTRUCTOR";
   phone?: string;
   registrationDate: string;
   status: "pending";
 }
 
 const UserManagementPageComponent = () => {
-  const { toast } = useToast();
-  const [searchTerm, setSearchTerm] = useState("");
   const [users, setUsers] = useState<User[]>([]);
   const [pendingRegistrations, setPendingRegistrations] = useState<
     PendingRegistration[]
@@ -82,12 +66,11 @@ const UserManagementPageComponent = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
   const [newUser, setNewUser] = useState({
     firstName: "",
     lastName: "",
     email: "",
-    role: "student" as "student" | "instructor" | "admin",
+    role: "ROLE_STUDENT" as "ROLE_STUDENT" | "ROLE_INSTRUCTOR" | "ROLE_ADMIN",
     phone: "",
     password: "",
   });
@@ -100,7 +83,7 @@ const UserManagementPageComponent = () => {
           id: "1",
           name: "Kong KEAT",
           email: "student@test.com",
-          role: "student",
+          role: "ROLE_STUDENT",
           status: "active",
           joinDate: "2024-01-15",
           lastActive: "2 hours ago",
@@ -113,7 +96,7 @@ const UserManagementPageComponent = () => {
           id: "2",
           name: "John Smith",
           email: "instructor@test.com",
-          role: "instructor",
+          role: "ROLE_INSTRUCTOR",
           status: "active",
           joinDate: "2023-12-05",
           lastActive: "30 minutes ago",
@@ -125,11 +108,11 @@ const UserManagementPageComponent = () => {
           id: "3",
           name: "Admin User",
           email: "admin@test.com",
-          role: "admin",
+          role: "ROLE_ADMIN",
           status: "active",
           joinDate: "2023-11-01",
           lastActive: "1 hour ago",
-          firstName: "Admin",
+          firstName: "ROLE_ADMIN",
           lastName: "User",
           phone: "+60111222333",
         },
@@ -148,7 +131,7 @@ const UserManagementPageComponent = () => {
           status: "active",
           joinDate: user.approvedDate || new Date().toISOString().split("T")[0],
           lastActive: "Never",
-          courses: user.role === "student" ? 0 : undefined,
+          courses: user.role === "ROLE_STUDENT" ? 0 : undefined,
           firstName: user.firstName,
           lastName: user.lastName,
           phone: user.phone || "Not provided",
@@ -165,7 +148,7 @@ const UserManagementPageComponent = () => {
         status: user.status,
         joinDate: user.joinDate,
         lastActive: user.lastActive || "Never",
-        courses: user.role === "student" ? 0 : undefined,
+        courses: user.role === "ROLE_STUDENT" ? 0 : undefined,
         firstName: user.firstName,
         lastName: user.lastName,
         phone: user.phone || "Not provided",
@@ -186,26 +169,9 @@ const UserManagementPageComponent = () => {
     loadData();
   }, []);
 
-  const filteredUsers = users.filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const getRoleIcon = (role: string) => {
-    switch (role) {
-      case "admin":
-        return <Shield className="w-4 h-4" />;
-      case "instructor":
-        return <GraduationCap className="w-4 h-4" />;
-      default:
-        return <Users className="w-4 h-4" />;
-    }
-  };
-
   const getRoleBadge = (role: string) => {
     switch (role) {
-      case "admin":
+      case "ROLE_ADMIN":
         return (
           <Badge
             style={{
@@ -216,7 +182,7 @@ const UserManagementPageComponent = () => {
             Admin
           </Badge>
         );
-      case "instructor":
+      case "ROLE_INSTRUCTOR":
         return (
           <Badge
             style={{
@@ -270,85 +236,6 @@ const UserManagementPageComponent = () => {
     }
   };
 
-  const handleUserAction = (
-    userId: string,
-    action: "enable" | "disable" | "revoke" | "delete",
-    userName: string
-  ) => {
-    const actionMessages = {
-      enable: `Are you sure you want to enable ${userName}?`,
-      disable: `Are you sure you want to disable ${userName}?`,
-      revoke: `Are you sure you want to revoke access for ${userName}?`,
-      delete: `Are you sure you want to delete ${userName}? This action cannot be undone.`,
-    };
-
-    const confirmed = window.confirm(actionMessages[action]);
-    if (confirmed) {
-      if (action === "delete") {
-        setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
-
-        // Also remove from localStorage if it's an admin-created user
-        const adminUsers = JSON.parse(
-          localStorage.getItem("adminUsers") || "[]"
-        );
-        const updatedAdminUsers = adminUsers.filter(
-          (user: any) => user.id !== userId
-        );
-        localStorage.setItem("adminUsers", JSON.stringify(updatedAdminUsers));
-      } else {
-        setUsers((prevUsers) =>
-          prevUsers.map((user) =>
-            user.id === userId
-              ? {
-                  ...user,
-                  status:
-                    action === "enable"
-                      ? "active"
-                      : (action as "disabled" | "revoked"),
-                }
-              : user
-          )
-        );
-
-        // Update in localStorage if it's an admin-created user
-        const adminUsers = JSON.parse(
-          localStorage.getItem("adminUsers") || "[]"
-        );
-        const updatedAdminUsers = adminUsers.map((user: any) =>
-          user.id === userId
-            ? { ...user, status: action === "enable" ? "active" : action }
-            : user
-        );
-        localStorage.setItem("adminUsers", JSON.stringify(updatedAdminUsers));
-      }
-
-      toast({
-        title: `User ${
-          action === "enable"
-            ? "Enabled"
-            : action === "disable"
-            ? "Disabled"
-            : action === "revoke"
-            ? "Revoked"
-            : "Deleted"
-        }`,
-        description: `${userName} has been ${
-          action === "enable"
-            ? "enabled"
-            : action === "disable"
-            ? "disabled"
-            : action === "revoke"
-            ? "revoked"
-            : "deleted"
-        }`,
-        variant:
-          action === "revoke" || action === "delete"
-            ? "destructive"
-            : "default",
-      });
-    }
-  };
-
   const handleCreateUser = () => {
     if (
       !newUser.firstName ||
@@ -356,10 +243,8 @@ const UserManagementPageComponent = () => {
       !newUser.email ||
       !newUser.password
     ) {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: "Please fill in all required fields",
-        variant: "destructive",
       });
       return;
     }
@@ -373,7 +258,7 @@ const UserManagementPageComponent = () => {
       status: "active",
       joinDate: new Date().toISOString().split("T")[0],
       lastActive: "Never",
-      courses: newUser.role === "student" ? 0 : undefined,
+      courses: newUser.role === "ROLE_STUDENT" ? 0 : undefined,
       firstName: newUser.firstName,
       lastName: newUser.lastName,
       phone: newUser.phone || "Not provided",
@@ -402,14 +287,13 @@ const UserManagementPageComponent = () => {
       firstName: "",
       lastName: "",
       email: "",
-      role: "student",
+      role: "ROLE_STUDENT",
       phone: "",
       password: "",
     });
     setCreateDialogOpen(false);
 
-    toast({
-      title: "User Created",
+    toast.success("User Created",{
       description: `${newUserData.name} has been created successfully. They must change their password on first login.`,
     });
   };
@@ -433,8 +317,8 @@ const UserManagementPageComponent = () => {
         )
       );
 
-      toast({
-        title: "Password Reset",
+      toast.success(
+        "Password Reset",{
         description: `Password reset for ${user.name}. They must change it on next login.`,
       });
     }
@@ -477,7 +361,7 @@ const UserManagementPageComponent = () => {
         status: "active",
         joinDate: new Date().toISOString().split("T")[0],
         lastActive: "Never",
-        courses: registration.role === "student" ? 0 : undefined,
+        courses: registration.role === "ROLE_STUDENT" ? 0 : undefined,
         firstName: registration.firstName,
         lastName: registration.lastName,
         phone: registration.phone || "Not provided",
@@ -500,13 +384,19 @@ const UserManagementPageComponent = () => {
       prev.filter((reg) => reg.id !== registrationId)
     );
 
-    toast({
-      title: approved ? "Registration Approved" : "Registration Rejected",
-      description: `${registration.firstName} ${
+    const title = approved ? "Registration Approved" : "Registration Rejected" 
+    const description = `${registration.firstName} ${
         registration.lastName
-      }'s registration has been ${approved ? "approved" : "rejected"}`,
-      variant: approved ? "default" : "destructive",
-    });
+      }'s registration has been ${approved ? "approved" : "rejected"}`
+      if (approved) {
+        toast.success(title, {
+          description: description
+        })
+      } else {
+        toast.error(title, {
+          description: description
+        })
+      }
   };
 
   const handleViewUser = (user: User) => {
@@ -516,15 +406,13 @@ const UserManagementPageComponent = () => {
 
   const userStats = {
     total: users.length,
-    students: users.filter((u) => u.role === "student").length,
-    instructors: users.filter((u) => u.role === "instructor").length,
+    students: users.filter((u) => u.role === "ROLE_STUDENT").length,
+    instructors: users.filter((u) => u.role === "ROLE_INSTRUCTOR").length,
     active: users.filter((u) => u.status === "active").length,
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
-      <Sidebar />
-
+    <>
       <div className="flex-1 flex flex-col">
         <header className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 px-8 py-4">
           <div className="flex items-center justify-between">
@@ -614,16 +502,16 @@ const UserManagementPageComponent = () => {
                       <Select
                         value={newUser.role}
                         onValueChange={(
-                          value: "student" | "instructor" | "admin"
+                          value: "ROLE_STUDENT" | "ROLE_INSTRUCTOR" | "ROLE_ADMIN"
                         ) => setNewUser({ ...newUser, role: value })}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select role" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="student">Student</SelectItem>
-                          <SelectItem value="instructor">Instructor</SelectItem>
-                          <SelectItem value="admin">Admin</SelectItem>
+                          <SelectItem value="ROLE_STUDENT">Student</SelectItem>
+                          <SelectItem value="ROLE_INSTRUCTOR">Instructor</SelectItem>
+                          <SelectItem value="ROLE_ADMIN">Admin</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -732,306 +620,11 @@ const UserManagementPageComponent = () => {
             </TabsList>
 
             <TabsContent value="users">
-              <Card className="dark:bg-gray-800 dark:border-gray-700">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center dark:text-white">
-                      <Users className="w-5 h-5 mr-2" />
-                      All Users
-                    </CardTitle>
-                    <div className="flex items-center space-x-2">
-                      <div className="relative">
-                        <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                        <Input
-                          placeholder="Search users..."
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                          className="pl-10 w-64 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="overflow-hidden">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-gray-200 dark:border-gray-700">
-                          <th className="text-left py-3 px-2 font-medium text-gray-700 dark:text-gray-300">
-                            User
-                          </th>
-                          <th className="text-left py-3 px-2 font-medium text-gray-700 dark:text-gray-300">
-                            Role
-                          </th>
-                          <th className="text-left py-3 px-2 font-medium text-gray-700 dark:text-gray-300">
-                            Status
-                          </th>
-                          <th className="text-left py-3 px-2 font-medium text-gray-700 dark:text-gray-300">
-                            Last Active
-                          </th>
-                          <th className="text-left py-3 px-2 font-medium text-gray-700 dark:text-gray-300">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredUsers.map((user) => (
-                          <tr
-                            key={user.id}
-                            className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
-                          >
-                            <td className="py-3 px-2">
-                              <div className="flex items-center">
-                                <div
-                                  className="w-8 h-8 rounded-full flex items-center justify-center mr-3"
-                                  style={{
-                                    backgroundColor:
-                                      "hsl(var(--admin-primary))",
-                                  }}
-                                >
-                                  <span className="text-white text-xs font-bold">
-                                    {user.name
-                                      .split(" ")
-                                      .map((n) => n[0])
-                                      .join("")}
-                                  </span>
-                                </div>
-                                <div>
-                                  <p className="font-medium text-gray-900 dark:text-white">
-                                    {user.name}
-                                    {user.mustChangePassword && (
-                                      <Badge className="ml-2 bg-yellow-100 text-yellow-800 text-xs">
-                                        Must Change Password
-                                      </Badge>
-                                    )}
-                                  </p>
-                                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    {user.email}
-                                  </p>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="py-3 px-2">
-                              <div className="flex items-center space-x-2">
-                                {getRoleIcon(user.role)}
-                                {getRoleBadge(user.role)}
-                              </div>
-                            </td>
-                            <td className="py-3 px-2">
-                              {getStatusBadge(user.status)}
-                            </td>
-                            <td className="py-3 px-2 text-sm text-gray-600 dark:text-gray-400">
-                              {user.lastActive}
-                            </td>
-                            <td className="py-3 px-2">
-                              <div className="flex items-center space-x-2">
-                                {user.status === "active" && (
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() =>
-                                      handleUserAction(
-                                        user.id,
-                                        "disable",
-                                        user.name
-                                      )
-                                    }
-                                    className="text-yellow-600 border-yellow-200 hover:bg-yellow-50"
-                                  >
-                                    <Ban className="w-3 h-3 mr-1" />
-                                    Disable
-                                  </Button>
-                                )}
-
-                                {user.status === "disabled" && (
-                                  <>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() =>
-                                        handleUserAction(
-                                          user.id,
-                                          "enable",
-                                          user.name
-                                        )
-                                      }
-                                      className="text-green-600 border-green-200 hover:bg-green-50"
-                                    >
-                                      <CheckCircle className="w-3 h-3 mr-1" />
-                                      Enable
-                                    </Button>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() =>
-                                        handleUserAction(
-                                          user.id,
-                                          "revoke",
-                                          user.name
-                                        )
-                                      }
-                                      className="text-red-600 border-red-200 hover:bg-red-50"
-                                    >
-                                      <XCircle className="w-3 h-3 mr-1" />
-                                      Revoke
-                                    </Button>
-                                  </>
-                                )}
-
-                                {user.status === "revoked" && (
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() =>
-                                      handleUserAction(
-                                        user.id,
-                                        "enable",
-                                        user.name
-                                      )
-                                    }
-                                    className="text-green-600 border-green-200 hover:bg-green-50"
-                                  >
-                                    <CheckCircle className="w-3 h-3 mr-1" />
-                                    Enable
-                                  </Button>
-                                )}
-
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="sm">
-                                      <MoreVertical className="w-4 h-4" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent>
-                                    <DropdownMenuItem
-                                      onClick={() => handleViewUser(user)}
-                                    >
-                                      <Eye className="w-4 h-4 mr-2" />
-                                      View Details
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                      onClick={() => handleResetPassword(user)}
-                                    >
-                                      <Key className="w-4 h-4 mr-2" />
-                                      Reset Password
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                      onClick={() =>
-                                        handleUserAction(
-                                          user.id,
-                                          "delete",
-                                          user.name
-                                        )
-                                      }
-                                      className="text-red-600"
-                                    >
-                                      <Trash2 className="w-4 h-4 mr-2" />
-                                      Delete User
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
+              <AllUserTabComponent users={users} />
             </TabsContent>
 
             <TabsContent value="pending">
-              <Card className="dark:bg-gray-800 dark:border-gray-700">
-                <CardHeader>
-                  <CardTitle className="flex items-center dark:text-white">
-                    <Clock className="w-5 h-5 mr-2" />
-                    Pending Registrations
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {pendingRegistrations.length === 0 ? (
-                    <div className="text-center py-8">
-                      <UserCheck className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                      <p className="text-gray-500 dark:text-gray-400">
-                        No pending registrations
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {pendingRegistrations.map((registration) => (
-                        <div
-                          key={registration.id}
-                          className="border border-gray-200 dark:border-gray-700 rounded-lg p-4"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                              <div
-                                className="w-10 h-10 rounded-full flex items-center justify-center"
-                                style={{
-                                  backgroundColor: "hsl(var(--admin-primary))",
-                                }}
-                              >
-                                <span className="text-white text-sm font-bold">
-                                  {registration.firstName[0]}
-                                  {registration.lastName[0]}
-                                </span>
-                              </div>
-                              <div>
-                                <p className="font-medium text-gray-900 dark:text-white">
-                                  {registration.firstName}{" "}
-                                  {registration.lastName}
-                                </p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                  {registration.email}
-                                </p>
-                                <div className="flex items-center space-x-2 mt-1">
-                                  {getRoleBadge(registration.role)}
-                                  <span className="text-xs text-gray-500">
-                                    Registered:{" "}
-                                    {new Date(
-                                      registration.registrationDate
-                                    ).toLocaleDateString()}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex space-x-2">
-                              <Button
-                                size="sm"
-                                onClick={() =>
-                                  handleApproveRegistration(
-                                    registration.id,
-                                    true
-                                  )
-                                }
-                                className="bg-green-600 hover:bg-green-700 text-white"
-                              >
-                                <CheckCircle className="w-4 h-4 mr-1" />
-                                Approve
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() =>
-                                  handleApproveRegistration(
-                                    registration.id,
-                                    false
-                                  )
-                                }
-                                className="text-red-600 border-red-200 hover:bg-red-50"
-                              >
-                                <XCircle className="w-4 h-4 mr-1" />
-                                Reject
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+              <PendingApprovalUserTabComponent pendingRegistrations={pendingRegistrations} />
             </TabsContent>
           </Tabs>
         </main>
@@ -1124,7 +717,7 @@ const UserManagementPageComponent = () => {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 };
 

@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-export async function middleware(request : NextRequest) {
+export async function middleware(request: NextRequest) {
   const token = await getToken({
     req: request,
     secret: process.env.AUTH_SECRET,
-    secureCookie: process.env.SECURE as any ?? false,
+    secureCookie: (process.env.SECURE as any) ?? false,
   });
 
   if (!token) return NextResponse.redirect(new URL("/login", request.url));
@@ -25,7 +25,9 @@ export async function middleware(request : NextRequest) {
     case "ROLE_INSTRUCTOR":
       // Add the paths that the owner can access here
       if (!request.nextUrl.pathname.startsWith("/instructor")) {
-        return NextResponse.redirect(new URL("/instructor/dashboard", request.url));
+        return NextResponse.redirect(
+          new URL("/instructor/dashboard", request.url)
+        );
       }
       break;
     case "ROLE_ADMIN":
