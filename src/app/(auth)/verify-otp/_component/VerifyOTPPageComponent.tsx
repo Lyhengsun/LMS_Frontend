@@ -1,103 +1,121 @@
-"use client"
+"use client";
 
-import { AuthFormLayoutComponent } from "@/src/app/(auth)/_components/AuthFormLayoutComponent"
-import { Button } from "@/src/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
-import { OTPInput } from "@/src/components/ui/custom/otp-input"
-import { Input } from "@/src/components/ui/input"
-import { Label } from "@/src/components/ui/label"
-import { AlertCircle, Shield, ArrowLeft, RefreshCw } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import React from "react"
+import { AuthFormLayoutComponent } from "@/src/app/(auth)/_components/AuthFormLayoutComponent";
+import { Button } from "@/components/ui/button";
+import { AlertCircle, Shield, ArrowLeft, RefreshCw } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import z from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
+import { toast } from "sonner";
+import { RegisterData } from "@/src/type/AuthData";
+import {
+  registerAction,
+  resendOTPAction,
+  verifyOTPAction,
+} from "@/src/action/authAction";
+
+const FormSchema = z.object({
+  pin: z
+    .string()
+    .min(6, {
+      message: "OTP must be 6 digits.",
+    })
+    .regex(/^\d+$/, "OTP must be digits"),
+});
 
 export default function VerifyOTPPageComponent() {
-      const router = useRouter()
-  const [otp, setOtp] = React.useState(["", "", "", "", "", ""])
-  const [error, setError] = React.useState("")
-  const [isLoading, setIsLoading] = React.useState(false)
-  const [resendCooldown, setResendCooldown] = React.useState(0)
-  const [registrationData, setRegistrationData] = React.useState<any>(null)
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      pin: "",
+    },
+  });
+  const router = useRouter();
+  const [resendCooldown, setResendCooldown] = React.useState(0);
+  const [registrationData, setRegistrationData] = useState<RegisterData | null>(
+    null
+  );
 
-  React.useEffect(() => {
-    // Get registration data from sessionStorage
-    const data = sessionStorage.getItem("registrationData")
-    if (data) {
-      setRegistrationData(JSON.parse(data))
+  useEffect(() => {
+    const dataString = sessionStorage.getItem("registrationData");
+
+    if (dataString != null) {
+      setRegistrationData(JSON.parse(dataString) as unknown as RegisterData);
     } else {
-      // If no registration data, redirect to register page
-      router.push("/register")
+      router.back();
     }
-
     // Start resend cooldown
-    setResendCooldown(60)
+    setResendCooldown(60);
     const interval = setInterval(() => {
       setResendCooldown((prev) => {
         if (prev <= 1) {
-          clearInterval(interval)
-          return 0
+          clearInterval(interval);
+          return 0;
         }
-        return prev - 1
-      })
-    }, 1000)
+        return prev - 1;
+      });
+    }, 1000);
 
-    return () => clearInterval(interval)
-  }, [router])
+    return () => clearInterval(interval);
+  }, []);
 
-  const handleVerifyOTP = async (e: React.FormEvent) => {
-    e.preventDefault()
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    toast("You submitted the following values", {
+      description: registrationData?.email + " " + data,
+    });
+    console.log(data);
 
-    const otpString = otp.join("")
-    if (otpString.length !== 6) {
-      setError("Please enter all 6 digits")
-      return
-    }
+    const res = await verifyOTPAction(registrationData?.email!, data.pin);
 
-    setIsLoading(true)
-    setError("")
-
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      // For demo purposes, accept any 6-digit code
-      console.log("Registration completed:", registrationData)
-      console.log("OTP verified:", otpString)
-
-      // Clear registration data
-      sessionStorage.removeItem("registrationData")
-
-      // Redirect to success page or login
-      alert("Registration successful! Please login with your credentials.")
-      router.push("/")
-    } catch (error) {
-      setError("Invalid OTP. Please try again.")
-    } finally {
-      setIsLoading(false)
+    if (res.success) {
+      toast.success(
+        "Verify OTP Successfully! Please wait for admin approval to use the account"
+      );
+      form.reset();
+      router.push("/login");
+    } else {
+      toast.error("Verification Failed");
     }
   }
 
   const handleResendOTP = async () => {
-    if (resendCooldown > 0) return
+    const res = await resendOTPAction(registrationData?.email!);
+    if (!res.success) {
+      toast.error("Failed to resend OTP code", {
+        description: "Something went wrong",
+      });
+    }
+    if (resendCooldown > 0) return;
 
-    setResendCooldown(60)
+    setResendCooldown(60);
     const interval = setInterval(() => {
       setResendCooldown((prev) => {
         if (prev <= 1) {
-          clearInterval(interval)
-          return 0
+          clearInterval(interval);
+          return 0;
         }
-        return prev - 1
-      })
-    }, 1000)
-
-    // Simulate resend API call
-    console.log("Resending OTP to:", registrationData?.email)
-    alert("OTP has been resent to your email!")
-  }
+        return prev - 1;
+      });
+    }, 1000);
+  };
 
   if (!registrationData) {
-    return null // Will redirect in useEffect
+    return null; // Will redirect in useEffect
   }
 
   return (
@@ -108,16 +126,27 @@ export default function VerifyOTPPageComponent() {
         <>
           We've sent a 6-digit code to
           <br />
-          <span className="font-medium text-foreground">{registrationData?.email}</span>
+          <span className="font-medium text-foreground">
+            {registrationData?.email}
+          </span>
         </>
       }
       icon={<Shield className="w-6 h-6 text-white" />}
       footer={
         <div className="text-center space-y-4">
           <div>
-            <p className="text-sm text-gray-600 mb-2">Didn't receive the code?</p>
-            <Button variant="outline" onClick={handleResendOTP} disabled={resendCooldown > 0} className="text-sm">
-              {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend Code"}
+            <p className="text-sm text-gray-600 mb-2">
+              Didn't receive the code?
+            </p>
+            <Button
+              variant="outline"
+              onClick={handleResendOTP}
+              disabled={resendCooldown > 0}
+              className="text-sm"
+            >
+              {resendCooldown > 0
+                ? `Resend in ${resendCooldown}s`
+                : "Resend Code"}
             </Button>
           </div>
 
@@ -129,39 +158,38 @@ export default function VerifyOTPPageComponent() {
               </Button>
             </Link>
           </div>
-
-          <div>
-            <p className="text-xs text-gray-500">
-              <strong>Demo:</strong> Enter any 6-digit code to continue
-            </p>
-          </div>
         </div>
       }
     >
-      <form onSubmit={handleVerifyOTP} className="space-y-6">
-        <OTPInput
-          value={otp}
-          onChange={(newOtp) => {
-            setOtp(newOtp)
-            setError("")
-          }}
-          error={error}
-        />
-
-        <Button type="submit" className="w-full" style={{ backgroundColor: "#8B5CF6" }} disabled={isLoading}>
-          {isLoading ? (
-            <>
-              <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-              Verifying...
-            </>
-          ) : (
-            <>
-              <Shield className="w-4 h-4 mr-2" />
-              Verify Code
-            </>
-          )}
-        </Button>
-      </form>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="w-full space-y-6 flex-col items-center flex"
+        >
+          <FormField
+            control={form.control}
+            name="pin"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <InputOTP maxLength={6} {...field}>
+                    <InputOTPGroup>
+                      <InputOTPSlot index={0} />
+                      <InputOTPSlot index={1} />
+                      <InputOTPSlot index={2} />
+                      <InputOTPSlot index={3} />
+                      <InputOTPSlot index={4} />
+                      <InputOTPSlot index={5} />
+                    </InputOTPGroup>
+                  </InputOTP>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit">Submit</Button>
+        </form>
+      </Form>
     </AuthFormLayoutComponent>
-  )
+  );
 }

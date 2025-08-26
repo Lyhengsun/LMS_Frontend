@@ -1,11 +1,10 @@
 "use client";
 import { useCourseProgressStore } from "@/src/components/CourseProgress";
 import { Sidebar } from "@/src/components/Sidebar";
-import { Button } from "@/src/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLearningStats } from "@/src/lib/hooks/useLearningStats";
 import {
-  Badge,
   Bell,
   BookOpen,
   Calendar,
@@ -16,6 +15,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { Badge } from "@/components/ui/badge";
 
 const StudentDashboardPageComponent = () => {
   const router = useRouter();

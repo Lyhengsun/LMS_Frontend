@@ -1,31 +1,25 @@
 "use client";
 import { Sidebar } from "@/src/components/Sidebar";
-import { Badge } from "@/src/components/ui/badge";
-import { Button } from "@/src/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/src/components/ui/card";
-import { Input } from "@/src/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/src/components/ui/select";
-import { Textarea } from "@/src/components/ui/textarea";
-import { useToast } from "@/src/components/ui/use-toast";
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useNotifications } from "@/src/lib/hooks/useNotifications";
 import { AlertCircle, Bell, Clock, Info, Send, Users, X } from "lucide-react";
 import React, { useState } from "react";
+import { toast } from "sonner";
 
 const InstructorNotificationPageComponent = () => {
   const { notifications, addNotification, deleteNotification } =
     useNotifications();
-  const { toast } = useToast();
   const [notificationForm, setNotificationForm] = useState({
     title: "",
     message: "",
@@ -34,10 +28,8 @@ const InstructorNotificationPageComponent = () => {
 
   const handleSendNotification = () => {
     if (!notificationForm.title.trim() || !notificationForm.message.trim()) {
-      toast({
-        title: "Error",
+      toast("Error", {
         description: "Please fill in all fields",
-        variant: "destructive",
       });
       return;
     }
@@ -54,8 +46,7 @@ const InstructorNotificationPageComponent = () => {
       priority: "medium",
     });
 
-    toast({
-      title: "Success",
+    toast.success("Success", {
       description: "Notification sent to all students",
     });
   };

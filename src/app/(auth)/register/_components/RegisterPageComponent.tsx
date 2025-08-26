@@ -1,99 +1,48 @@
-"use client"
+"use client";
 
-import { AuthFormLayoutComponent } from "@/src/app/(auth)/_components/AuthFormLayoutComponent"
-import { Button } from "@/src/components/ui/button"
-import { FormField } from "@/src/components/ui/custom/form-field"
-import { PasswordField } from "@/src/components/ui/custom/password-field"
-import { RoleSelect } from "@/src/components/ui/custom/role-select"
-import { GraduationCap, UserPlus, ArrowLeft } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import React from "react"
+import { AuthFormLayoutComponent } from "@/src/app/(auth)/_components/AuthFormLayoutComponent";
+import { Button } from "@/components/ui/button";
+import { GraduationCap, UserPlus, ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { registerSchema } from "@/src/lib/zod/authSchema";
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form } from "@/components/ui/form";
+import CustomFormField from "@/src/app/_components/CustomFormField";
+import CustomSelectFormField from "@/src/app/_components/CustomSelectFormField";
+import { registerAction } from "@/src/action/authAction";
+import { toast } from "sonner";
 
 export default function RegisterPageComponent() {
-     const router = useRouter()
-  const [registerData, setRegisterData] = React.useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    role: "",
-    phone: "",
-    password: "",
-    confirmPassword: "",
-  })
-  const [validationErrors, setValidationErrors] = React.useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    role: "",
-    phone: "",
-    password: "",
-    confirmPassword: "",
-  })
-
-  const validateForm = () => {
-    const errors = {
-      firstName: "",
-      lastName: "",
+  const router = useRouter();
+  const form = useForm<z.infer<typeof registerSchema>>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      fullName: "",
       email: "",
-      role: "",
-      phone: "",
       password: "",
-      confirmPassword: "",
+      phoneNumber: "",
+      roleId: "3",
+    },
+  });
+
+  const onSubmitRegister = async (values: z.infer<typeof registerSchema>) => {
+    console.log(values);
+    const res = await registerAction(values);
+    if (res.success) {
+      toast.success("Register Successfully");
+      sessionStorage.setItem("registrationData", JSON.stringify(values));
+      form.reset();
+      router.push("/verify-otp");
+    } else {
+      toast.error("Registration Failed");
     }
+  };
 
-    if (!registerData.firstName.trim()) {
-      errors.firstName = "First name is required"
-    }
-
-    if (!registerData.lastName.trim()) {
-      errors.lastName = "Last name is required"
-    }
-
-    if (!registerData.email.trim()) {
-      errors.email = "Email is required"
-    } else if (!/\S+@\S+\.\S+/.test(registerData.email)) {
-      errors.email = "Email is invalid"
-    }
-
-    if (!registerData.role) {
-      errors.role = "Please select a role"
-    }
-
-    if (!registerData.password) {
-      errors.password = "Password is required"
-    } else if (registerData.password.length < 6) {
-      errors.password = "Password must be at least 6 characters"
-    }
-
-    if (!registerData.confirmPassword) {
-      errors.confirmPassword = "Please confirm your password"
-    } else if (registerData.password !== registerData.confirmPassword) {
-      errors.confirmPassword = "Passwords do not match"
-    }
-
-    setValidationErrors(errors)
-    return Object.values(errors).every((error) => error === "")
-  }
-
-  const handleRegister = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (validateForm()) {
-      // Store registration data in sessionStorage for OTP page
-      sessionStorage.setItem("registrationData", JSON.stringify(registerData))
-      // Navigate to OTP verification page
-      router.push("/verify-otp")
-    }
-  }
-
-  const handleInputChange = (field: string, value: string) => {
-    setRegisterData({ ...registerData, [field]: value })
-    // Clear validation error when user starts typing
-    if (validationErrors[field as keyof typeof validationErrors]) {
-      setValidationErrors({ ...validationErrors, [field]: "" })
-    }
-  }
+  console.log(form.formState.errors);
 
   return (
     <AuthFormLayoutComponent
@@ -113,81 +62,60 @@ export default function RegisterPageComponent() {
         </div>
       }
     >
-      <form onSubmit={handleRegister} className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            id="firstName"
-            label="First Name"
-            placeholder="First name"
-            value={registerData.firstName}
-            onChange={(value) => handleInputChange("firstName", value)}
-            error={validationErrors.firstName}
-            required
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmitRegister)}
+          className="space-y-4"
+        >
+          <CustomFormField
+            control={form.control}
+            fieldName="fullName"
+            label="Fullname"
+            placeholder="Fullname"
           />
-          <FormField
-            id="lastName"
-            label="Last Name"
-            placeholder="Last name"
-            value={registerData.lastName}
-            onChange={(value) => handleInputChange("lastName", value)}
-            error={validationErrors.lastName}
-            required
+
+          <CustomFormField
+            control={form.control}
+            fieldName="email"
+            label="Email"
+            placeholder="Email"
           />
-        </div>
 
-        <FormField
-          id="email"
-          label="Email"
-          type="email"
-          placeholder="Enter your email"
-          value={registerData.email}
-          onChange={(value) => handleInputChange("email", value)}
-          error={validationErrors.email}
-          required
-        />
+          <CustomFormField
+            control={form.control}
+            fieldName={"password"}
+            label={"Password"}
+            placeholder={"Password"}
+            inputType="password"
+          />
 
-        <RoleSelect
-          value={registerData.role}
-          onChange={(value) => handleInputChange("role", value)}
-          error={validationErrors.role}
-          required
-        />
+          <CustomFormField
+            control={form.control}
+            fieldName="phoneNumber"
+            label="Phone Number"
+            placeholder="Phone Number"
+          />
 
-        <FormField
-          id="phone"
-          label="Phone Number"
-          type="tel"
-          placeholder="Enter your phone number"
-          value={registerData.phone}
-          onChange={(value) => handleInputChange("phone", value)}
-          error={validationErrors.phone}
-        />
+          <CustomSelectFormField
+            control={form.control}
+            fieldName="roleId"
+            label="Selected Role"
+            placeholder="Pick a Role"
+            options={[
+              { label: "INSTRUCTOR", value: "2" },
+              { label: "STUDENT", value: "3" },
+            ]}
+          />
 
-        <PasswordField
-          id="password"
-          label="Password"
-          placeholder="Enter your password"
-          value={registerData.password}
-          onChange={(value) => handleInputChange("password", value)}
-          error={validationErrors.password}
-          required
-        />
-
-        <PasswordField
-          id="confirmPassword"
-          label="Confirm Password"
-          placeholder="Confirm your password"
-          value={registerData.confirmPassword}
-          onChange={(value) => handleInputChange("confirmPassword", value)}
-          error={validationErrors.confirmPassword}
-          required
-        />
-
-        <Button type="submit" className="w-full" style={{ backgroundColor: "#8B5CF6" }}>
-          <UserPlus className="w-4 h-4 mr-2" />
-          Create Account
-        </Button>
-      </form>
+          <Button
+            type="submit"
+            className="w-full bg-purple-500 hover:bg-purple-300 active:bg-purple-300"
+          >
+            <UserPlus className="w-4 h-4 mr-2" />
+            Create Account
+          </Button>
+        </form>
+      </Form>
     </AuthFormLayoutComponent>
-  )
+  );
 }

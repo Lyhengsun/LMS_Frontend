@@ -1,19 +1,10 @@
 "use client";
 
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { ForgotPasswordDialog } from "@/src/components/forgot-password-dialog";
 import { AuthFormLayoutComponent } from "@/src/app/(auth)/_components/AuthFormLayoutComponent";
-import { Button } from "@/src/components/ui/button";
-import { Checkbox } from "@/src/components/ui/checkbox";
-import { PasswordField } from "@/src/components/ui/custom/password-field";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { loginSchema } from "@/src/lib/zod/authSchema";
 import { GraduationCap, LogIn, UserPlus } from "lucide-react";
 import Link from "next/link";
@@ -24,6 +15,7 @@ import z from "zod";
 import CustomFormField from "@/src/app/_components/CustomFormField";
 import { loginAction } from "@/src/action/authAction";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const LoginPageComponent = () => {
   const router = useRouter();
@@ -35,7 +27,6 @@ const LoginPageComponent = () => {
     },
   });
 
-  const [rememberMe, setRememberMe] = React.useState(false);
   const [isForgotPasswordOpen, setIsForgotPasswordOpen] = React.useState(false);
 
   async function onSubmit(values: z.infer<typeof loginSchema>) {
@@ -48,13 +39,15 @@ const LoginPageComponent = () => {
     });
 
     if (res?.success) {
-            console.log(res);
+      toast.success("Login Success");
       router.push("/");
       form.reset();
+    } else {
+      toast.warning("Login Failed", {
+        description: "Please make sure your account is verified and approved by the admin"
+      });
     }
   }
-
-  console.log("render");
 
   return (
     <>
@@ -108,18 +101,6 @@ const LoginPageComponent = () => {
               />
 
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="remember"
-                    checked={rememberMe}
-                    onCheckedChange={(checked) =>
-                      setRememberMe(checked as boolean)
-                    }
-                  />
-                  <label htmlFor="remember" className="text-sm text-gray-600">
-                    Remember me
-                  </label>
-                </div>
                 <button
                   type="button"
                   onClick={() => setIsForgotPasswordOpen(true)}

@@ -2,34 +2,20 @@
 import { FileUpload } from "@/src/components/file-upload";
 import { GradingPanel } from "@/src/components/grading-panel";
 import { Sidebar } from "@/src/components/Sidebar";
-import { Badge } from "@/src/components/ui/badge";
-import { Button } from "@/src/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/src/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/src/components/ui/dialog";
-import { Input } from "@/src/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/src/components/ui/select";
-import { Textarea } from "@/src/components/ui/textarea";
-import { useToast } from "@/src/lib/hooks/use-toast";
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useAssignmentStore } from "@/src/lib/hooks/useAssignmentStore";
 import { useNotifications } from "@/src/lib/hooks/useNotifications";
-import { getUserRole } from "@/src/lib/utils";
 import {
   CalendarDays,
   CheckCircle,
@@ -42,6 +28,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { toast } from "sonner";
 
 const InstructorAssignmentPageComponent = () => {
   const {
@@ -53,7 +40,6 @@ const InstructorAssignmentPageComponent = () => {
     gradeSubmission,
   } = useAssignmentStore();
   const { addNotification } = useNotifications();
-  const { toast } = useToast();
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState<number | null>(
@@ -76,10 +62,8 @@ const InstructorAssignmentPageComponent = () => {
       !newAssignment.dueDate ||
       !newAssignment.points
     ) {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: "Please fill in all required fields",
-        variant: "destructive",
       });
       return;
     }
@@ -112,8 +96,7 @@ const InstructorAssignmentPageComponent = () => {
     setAttachedFile(null);
     setIsCreateDialogOpen(false);
 
-    toast({
-      title: "Success",
+    toast.success("Success", {
       description: "Assignment created successfully!",
     });
   };
@@ -146,8 +129,7 @@ const InstructorAssignmentPageComponent = () => {
       });
     }
 
-    toast({
-      title: "Success",
+    toast.success("Success", {
       description: `Grade ${
         submission?.grade !== undefined ? "updated" : "submitted"
       } successfully!`,

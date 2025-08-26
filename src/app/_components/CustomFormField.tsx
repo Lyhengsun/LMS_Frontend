@@ -10,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import React from "react";
 import { Control, FieldValues } from "react-hook-form";
+import CustomPasswordField from "./CustomPasswordField";
 
 const CustomFormField = ({
   control,
@@ -34,7 +35,11 @@ const CustomFormField = ({
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <Input type={inputType} placeholder={placeholder} {...field} />
+            {inputType == "password" ? (
+              <CustomPasswordField placeholder={placeholder} field={field} />
+            ) : (
+              <Input type={inputType} placeholder={placeholder} {...field} />
+            )}
           </FormControl>
           {description && <FormDescription>{description}</FormDescription>}
           <FormMessage />

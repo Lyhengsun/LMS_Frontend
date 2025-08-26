@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
-import { Trophy, Star, Gift, X } from 'lucide-react';
-import { Button } from '@/src/components/ui/button';
-import { Card, CardContent } from '@/src/components/ui/card';
-import { Badge } from '@/src/components/ui/badge';
-import confetti from 'canvas-confetti';
+"use client";
+import { useEffect, useState } from "react";
+import { Trophy, Star, Gift, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import confetti from "canvas-confetti";
 
 interface CourseCompletionConfettiProps {
   show: boolean;
@@ -12,18 +13,18 @@ interface CourseCompletionConfettiProps {
   onContinue: () => void;
 }
 
-export const CourseCompletionConfetti = ({ 
-  show, 
-  courseName, 
-  onClose, 
-  onContinue 
+export const CourseCompletionConfetti = ({
+  show,
+  courseName,
+  onClose,
+  onContinue,
 }: CourseCompletionConfettiProps) => {
   const [showAnimation, setShowAnimation] = useState(false);
 
   useEffect(() => {
     if (show) {
       setShowAnimation(true);
-      
+
       // Trigger multiple confetti animations
       const duration = 3000;
       const animationEnd = Date.now() + duration;
@@ -50,11 +51,11 @@ export const CourseCompletionConfetti = ({
           ticks: 60,
           origin: {
             x: randomInRange(0.1, 0.3),
-            y: Math.random() - 0.2
-          }
+            y: Math.random() - 0.2,
+          },
         });
 
-        // Right side  
+        // Right side
         confetti({
           particleCount,
           startVelocity: 30,
@@ -62,8 +63,8 @@ export const CourseCompletionConfetti = ({
           ticks: 60,
           origin: {
             x: randomInRange(0.7, 0.9),
-            y: Math.random() - 0.2
-          }
+            y: Math.random() - 0.2,
+          },
         });
       }, 250);
 
@@ -85,10 +86,14 @@ export const CourseCompletionConfetti = ({
         >
           <X className="w-4 h-4" />
         </Button>
-        
+
         <CardContent className="p-8 text-center relative">
           {/* Animated decorations */}
-          <div className={`absolute inset-0 transition-opacity duration-1000 ${showAnimation ? 'opacity-100' : 'opacity-0'}`}>
+          <div
+            className={`absolute inset-0 transition-opacity duration-1000 ${
+              showAnimation ? "opacity-100" : "opacity-0"
+            }`}
+          >
             <div className="absolute top-4 left-4 text-yellow-400 animate-bounce delay-100">
               <Star className="w-6 h-6" />
             </div>
@@ -104,7 +109,11 @@ export const CourseCompletionConfetti = ({
           </div>
 
           {/* Main content */}
-          <div className={`relative z-10 transition-all duration-1000 ${showAnimation ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
+          <div
+            className={`relative z-10 transition-all duration-1000 ${
+              showAnimation ? "scale-100 opacity-100" : "scale-95 opacity-0"
+            }`}
+          >
             <div className="mb-6">
               <div className="relative">
                 <Trophy className="w-20 h-20 text-yellow-500 mx-auto mb-4 drop-shadow-lg animate-bounce" />
@@ -119,20 +128,25 @@ export const CourseCompletionConfetti = ({
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
               Congratulations!
             </h2>
-            
+
             <p className="text-gray-700 mb-6 leading-relaxed">
-              You've successfully completed <span className="font-semibold text-purple-700">"{courseName}"</span>! 
-              Your dedication to learning is truly inspiring.
+              You've successfully completed{" "}
+              <span className="font-semibold text-purple-700">
+                "{courseName}"
+              </span>
+              ! Your dedication to learning is truly inspiring.
             </p>
 
             <div className="space-y-4 mb-6">
               <div className="bg-white/60 rounded-lg p-4 border border-purple-200">
                 <div className="flex items-center justify-center space-x-2 text-purple-700">
                   <Star className="w-5 h-5 fill-current" />
-                  <span className="font-medium">Course Achievement Unlocked</span>
+                  <span className="font-medium">
+                    Course Achievement Unlocked
+                  </span>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div className="bg-white/40 rounded-lg p-2">
                   <div className="text-lg font-bold text-purple-600">100%</div>
@@ -150,15 +164,15 @@ export const CourseCompletionConfetti = ({
             </div>
 
             <div className="space-y-3">
-              <Button 
+              <Button
                 onClick={onContinue}
                 className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium py-3"
               >
                 Continue Learning Journey
               </Button>
-              
-              <Button 
-                variant="outline" 
+
+              <Button
+                variant="outline"
                 onClick={onClose}
                 className="w-full border-purple-200 text-purple-700 hover:bg-purple-50"
               >

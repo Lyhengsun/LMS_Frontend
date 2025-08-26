@@ -1,15 +1,26 @@
-import { useState, useRef, useEffect } from 'react';
-import { Play, Pause, Volume2, VolumeX, Maximize, SkipBack, SkipForward, Minimize, Settings } from 'lucide-react';
-import { Button } from '@/src/components/ui/button';
-import { Progress } from '@/src/components/ui/progress';
-import { Slider } from '@/src/components/ui/slider';
-import { VideoSubtitles } from '@/src/components/VideoSubtitles';
-import { 
+"use client";
+import { useState, useRef, useEffect } from "react";
+import {
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  Maximize,
+  SkipBack,
+  SkipForward,
+  Minimize,
+  Settings,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Slider } from "@/components/ui/slider";
+import { VideoSubtitles } from "@/src/components/VideoSubtitles";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/src/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 
 interface VideoPlayerProps {
   src: string;
@@ -24,15 +35,15 @@ interface VideoPlayerProps {
 
 const playbackSpeeds = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 
-export const EnhancedVideoPlayer = ({ 
-  src, 
-  onProgress, 
-  onEnded, 
-  onNext, 
-  onPrevious, 
-  hasNext, 
+export const EnhancedVideoPlayer = ({
+  src,
+  onProgress,
+  onEnded,
+  onNext,
+  onPrevious,
+  hasNext,
   hasPrevious,
-  title 
+  title,
 }: VideoPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -44,11 +55,11 @@ export const EnhancedVideoPlayer = ({
   const [showControls, setShowControls] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedSubtitle, setSelectedSubtitle] = useState<string | null>(null);
-  const [currentSubtitle, setCurrentSubtitle] = useState('');
-  
+  const [currentSubtitle, setCurrentSubtitle] = useState("");
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const controlsTimeoutRef = useRef<NodeJS.Timeout>();
+  const controlsTimeoutRef = useRef<NodeJS.Timeout>(null);
 
   // Mock subtitle data - in real app this would come from subtitle files
   const subtitleData = {
@@ -61,7 +72,7 @@ export const EnhancedVideoPlayer = ({
       { start: 0, end: 5, text: "សូមស្វាគមន៍មកកាន់មេរៀននេះ។" },
       { start: 5, end: 10, text: "ថ្ងៃនេះយើងនឹងរៀនអំពីគោលគំនិតកម្រិតខ្ពស់។" },
       { start: 10, end: 15, text: "តោះចាប់ផ្តើមពីមូលដ្ឋាន។" },
-    ]
+    ],
   };
 
   useEffect(() => {
@@ -69,8 +80,9 @@ export const EnhancedVideoPlayer = ({
       setIsFullscreen(!!document.fullscreenElement);
     };
 
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
   }, []);
 
   useEffect(() => {
@@ -88,20 +100,23 @@ export const EnhancedVideoPlayer = ({
 
     const container = containerRef.current;
     if (container) {
-      container.addEventListener('mousemove', handleMouseMove);
-      return () => container.removeEventListener('mousemove', handleMouseMove);
+      container.addEventListener("mousemove", handleMouseMove);
+      return () => container.removeEventListener("mousemove", handleMouseMove);
     }
   }, [isPlaying, isFullscreen]);
 
   // Update subtitles based on current time
   useEffect(() => {
-    if (selectedSubtitle && subtitleData[selectedSubtitle as keyof typeof subtitleData]) {
-      const currentSub = subtitleData[selectedSubtitle as keyof typeof subtitleData].find(
-        sub => currentTime >= sub.start && currentTime <= sub.end
-      );
-      setCurrentSubtitle(currentSub ? currentSub.text : '');
+    if (
+      selectedSubtitle &&
+      subtitleData[selectedSubtitle as keyof typeof subtitleData]
+    ) {
+      const currentSub = subtitleData[
+        selectedSubtitle as keyof typeof subtitleData
+      ].find((sub) => currentTime >= sub.start && currentTime <= sub.end);
+      setCurrentSubtitle(currentSub ? currentSub.text : "");
     } else {
-      setCurrentSubtitle('');
+      setCurrentSubtitle("");
     }
   }, [currentTime, selectedSubtitle]);
 
@@ -110,7 +125,7 @@ export const EnhancedVideoPlayer = ({
       const time = videoRef.current.currentTime;
       const dur = videoRef.current.duration;
       setCurrentTime(time);
-      
+
       if (onProgress && dur > 0) {
         onProgress(time, dur);
       }
@@ -188,7 +203,7 @@ export const EnhancedVideoPlayer = ({
         await document.exitFullscreen();
       }
     } catch (error) {
-      console.log('Fullscreen error:', error);
+      console.log("Fullscreen error:", error);
     }
   };
 
@@ -196,22 +211,30 @@ export const EnhancedVideoPlayer = ({
     const hours = Math.floor(time / 3600);
     const minutes = Math.floor((time % 3600) / 60);
     const seconds = Math.floor(time % 60);
-    
+
     if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds
+        .toString()
+        .padStart(2, "0")}`;
     }
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
   const skipForward = () => {
     if (videoRef.current) {
-      videoRef.current.currentTime = Math.min(videoRef.current.currentTime + 10, duration);
+      videoRef.current.currentTime = Math.min(
+        videoRef.current.currentTime + 10,
+        duration
+      );
     }
   };
 
   const skipBackward = () => {
     if (videoRef.current) {
-      videoRef.current.currentTime = Math.max(videoRef.current.currentTime - 10, 0);
+      videoRef.current.currentTime = Math.max(
+        videoRef.current.currentTime - 10,
+        0
+      );
     }
   };
 
@@ -237,7 +260,7 @@ export const EnhancedVideoPlayer = ({
   const VolumeIcon = isMuted || volume === 0 ? VolumeX : Volume2;
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="relative bg-black aspect-video rounded-lg overflow-hidden group"
     >
@@ -260,7 +283,9 @@ export const EnhancedVideoPlayer = ({
       {currentSubtitle && (
         <div className="absolute bottom-20 left-0 right-0 flex justify-center px-4">
           <div className="bg-black/80 text-white px-4 py-2 rounded-lg text-center max-w-4xl">
-            <p className="text-lg font-medium leading-relaxed">{currentSubtitle}</p>
+            <p className="text-lg font-medium leading-relaxed">
+              {currentSubtitle}
+            </p>
           </div>
         </div>
       )}
@@ -273,7 +298,7 @@ export const EnhancedVideoPlayer = ({
       )}
 
       {/* Play/Pause Overlay */}
-      <div 
+      <div
         className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
         onClick={togglePlay}
       >
@@ -287,18 +312,18 @@ export const EnhancedVideoPlayer = ({
       </div>
 
       {/* Controls */}
-      <div 
+      <div
         className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4 transition-opacity duration-300 ${
-          showControls ? 'opacity-100' : 'opacity-0'
+          showControls ? "opacity-100" : "opacity-0"
         }`}
       >
         {/* Progress Bar */}
         <div className="mb-4">
-          <div 
+          <div
             className="w-full h-2 bg-white/20 rounded-full cursor-pointer group/progress"
             onClick={handleProgressClick}
           >
-            <div 
+            <div
               className="h-full bg-blue-500 rounded-full transition-all duration-150 group-hover/progress:bg-blue-400"
               style={{ width: `${(currentTime / duration) * 100}%` }}
             />
@@ -316,16 +341,20 @@ export const EnhancedVideoPlayer = ({
             >
               <SkipBack className="w-5 h-5" />
             </Button>
-            
+
             <Button
               variant="ghost"
               size="sm"
               onClick={togglePlay}
               className="text-white hover:bg-white/20 p-2"
             >
-              {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
+              {isPlaying ? (
+                <Pause className="w-6 h-6" />
+              ) : (
+                <Play className="w-6 h-6" />
+              )}
             </Button>
-            
+
             <Button
               variant="ghost"
               size="sm"
@@ -347,7 +376,7 @@ export const EnhancedVideoPlayer = ({
                 ⏮️
               </Button>
             )}
-            
+
             {hasNext && (
               <Button
                 variant="ghost"
@@ -388,7 +417,7 @@ export const EnhancedVideoPlayer = ({
 
           <div className="flex items-center space-x-2">
             {/* Subtitle Control */}
-            <VideoSubtitles 
+            <VideoSubtitles
               onSubtitleChange={setSelectedSubtitle}
               currentSubtitle={selectedSubtitle}
             />
@@ -410,7 +439,7 @@ export const EnhancedVideoPlayer = ({
                     key={speed}
                     onClick={() => handleSpeedChange(speed)}
                     className={`text-white hover:bg-white/20 cursor-pointer ${
-                      playbackSpeed === speed ? 'bg-white/20' : ''
+                      playbackSpeed === speed ? "bg-white/20" : ""
                     }`}
                   >
                     {speed}x
@@ -426,7 +455,11 @@ export const EnhancedVideoPlayer = ({
               onClick={toggleFullscreen}
               className="text-white hover:bg-white/20 p-2"
             >
-              {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
+              {isFullscreen ? (
+                <Minimize className="w-5 h-5" />
+              ) : (
+                <Maximize className="w-5 h-5" />
+              )}
             </Button>
           </div>
         </div>

@@ -1,24 +1,21 @@
 "use client";
 import { Sidebar } from "@/src/components/Sidebar";
-import { Badge } from "@/src/components/ui/badge";
-import { Button } from "@/src/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/src/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/src/components/ui/dialog";
-import { Input } from "@/src/components/ui/input";
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import {
   BookOpen,
+  Clock,
   Edit,
+  Eye,
   Plus,
   Search,
   Star,
@@ -27,10 +24,26 @@ import {
 } from "lucide-react";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Form } from "@/components/ui/form";
+import z from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const createCourseFormSchema = z.object({
+  courseName: z.string().trim(),
+  courseDescription: z.string().trim(),
+  level: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCE"]),
+  maxPoints: z.number(),
+});
 
 const InstructorCoursePageComponent = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const router = useRouter();
+  const form = useForm<z.infer<typeof createCourseFormSchema>>({
+    resolver: zodResolver(createCourseFormSchema),
+  });
 
   const courses = [
     {
@@ -38,36 +51,50 @@ const InstructorCoursePageComponent = () => {
       title: "React Development Masterclass",
       description:
         "Complete guide to React development with hooks and modern patterns",
+      instructor: "guy",
       students: 45,
-      lessons: 24,
-      status: "active",
-      rating: 4.8,
-      progress: 85,
+      lessons: [{}, {}],
+      isPublic: true,
+      duration: "40",
       createdAt: "2024-01-15",
+      thumbnail:
+        "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400&h=225&fit=crop",
     },
     {
       id: 2,
       title: "JavaScript Fundamentals",
       description: "Learn JavaScript from basics to advanced concepts",
+      instructor: "guy",
       students: 32,
-      lessons: 18,
-      status: "active",
-      rating: 4.6,
-      progress: 92,
+      lessons: [{}, {}],
+      isPublic: true,
+      duration: "40",
       createdAt: "2024-02-01",
+      thumbnail:
+        "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400&h=225&fit=crop",
     },
     {
       id: 3,
       title: "Web Development Bootcamp",
       description: "Full-stack web development course",
+      instructor: "guy",
       students: 28,
-      lessons: 36,
-      status: "draft",
-      rating: 4.9,
-      progress: 45,
+      lessons: [{}, {}],
+      isPublic: false,
+      duration: "40",
       createdAt: "2024-02-15",
+      thumbnail:
+        "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400&h=225&fit=crop",
     },
   ];
+
+  const handleViewCourse = (courseId: number) => {
+    router.push(`/instructor/course/view-course/${courseId}`);
+  };
+
+  const handleEditCourse = (courseId: number) => {
+    router.push(`/instructor/course/edit-course/${courseId}`);
+  };
 
   const filteredCourses = courses.filter(
     (course) =>
@@ -95,21 +122,14 @@ const InstructorCoursePageComponent = () => {
               open={isCreateDialogOpen}
               onOpenChange={setIsCreateDialogOpen}
             >
-              <DialogTrigger asChild>
-                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Course
-                </Button>
-              </DialogTrigger>
+              <DialogTrigger asChild></DialogTrigger>
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Create New Course</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <Input placeholder="Course title" />
-                  <Input placeholder="Course description" />
-                  <Button className="w-full">Create Course</Button>
-                </div>
+                <Form {...form}>
+                  <form onSubmit={}></form>
+                </Form>
               </DialogContent>
             </Dialog>
           </div>
@@ -132,51 +152,69 @@ const InstructorCoursePageComponent = () => {
           {/* Courses Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCourses.map((course) => (
-              <Card
-                key={course.id}
-                className="hover:shadow-lg transition-shadow"
-              >
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg mb-2">
-                        {course.title}
-                      </CardTitle>
-                      <p className="text-sm text-gray-600 mb-3">
-                        {course.description}
-                      </p>
-                    </div>
-                    <Badge
-                      className={
-                        course.status === "active"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }
-                    >
-                      {course.status}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between text-sm text-gray-600">
-                      <div className="flex items-center space-x-1">
-                        <Users className="w-4 h-4" />
-                        <span>{course.students} students</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <BookOpen className="w-4 h-4" />
-                        <span>{course.lessons} lessons</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Star className="w-4 h-4 text-yellow-500" />
-                        <span>{course.rating}</span>
+              <div key={course.id}>
+                <img
+                  src={course.thumbnail}
+                  alt={course.title}
+                  className="w-full h-36 object-cover rounded-t-lg"
+                />
+                <Card
+                  key={course.id}
+                  className="hover:shadow-lg transition-shadow rounded-t-none pt-3"
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 flex-col">
+                        <div className="flex-1 flex justify-between items-center mb-2">
+                          <CardTitle className="text-lg line-clamp-1">
+                            {course.title}
+                          </CardTitle>
+                          <Badge
+                            className={
+                              course.isPublic
+                                ? "bg-green-100 text-green-800"
+                                : "bg-yellow-100 text-yellow-800"
+                            }
+                          >
+                            {course.isPublic ? "approved" : "pending"}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-3 h-10">
+                          {course.description}
+                        </p>
                       </div>
                     </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex space-x-2">
-                        <Button variant="outline" size="sm">
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between text-sm text-gray-600">
+                        <div className="flex items-center space-x-1">
+                          <Users className="w-4 h-4" />
+                          <span>{course.students} students</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <BookOpen className="w-4 h-4" />
+                          <span>{course.lessons.length} lessons</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Clock className="w-4 h-4" />
+                          <span>{course.duration} minutes</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-start space-x-3">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleViewCourse(course.id)}
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
+                          View
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditCourse(course.id)}
+                        >
                           <Edit className="w-4 h-4 mr-1" />
                           Edit
                         </Button>
@@ -190,9 +228,9 @@ const InstructorCoursePageComponent = () => {
                         </Button>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </div>
             ))}
           </div>
         </div>

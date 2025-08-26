@@ -1,14 +1,5 @@
 import headerToken from "../app/api/headerToken";
-
-type RegisterData = {
-    fullName : string,
-    gender : string,
-    dateOfBirth: string,
-    email : string,
-    password : string,
-    phoneNumber : string,
-    roleId: number
-}
+import { RegisterData } from "../type/AuthData";
 
 export const registerService = async (
     registerData : RegisterData
@@ -16,7 +7,7 @@ export const registerService = async (
 
   console.log("registerUserData : ", registerData);
   try {
-    const res = await fetch(`${process.env.BASE_API_URL}/auths/register`, {
+    const res = await fetch(`${process.env.BASE_API_URL}/auth/register`, {
       headers: {
         accept: "*/*",
         "Content-Type": "application/json",
@@ -60,12 +51,12 @@ export const loginService = async (email : string, password : string) => {
   }
 };
 
-export const verifyRegisterService = async (email : string, otp : string) => {
+export const verifyOTPService = async (email : string, otpCode : string) => {
   try {
     const res = await fetch(
-      `${process.env.BASE_API_URL}/auths/verify-register?email=${email}&otp=${otp}`,
+      `${process.env.BASE_API_URL}/auth/verify?email=${email}&otpCode=${otpCode}`,
       {
-        method: "PUT",
+        method: "POST",
         headers: {
           accept: "*/*",
         },
@@ -73,9 +64,9 @@ export const verifyRegisterService = async (email : string, otp : string) => {
     );
     const data = await res.json();
 
-    console.log("verify register service data : ", data);
+    console.log("verify otp service data : ", data);
     if (!data) {
-      throw new Error("verify register service fail");
+      throw new Error("verify otp service fail");
     }
 
     return data;
@@ -87,7 +78,7 @@ export const verifyRegisterService = async (email : string, otp : string) => {
 export const resendOTPService = async (email : string) => {
   try {
     const res = await fetch(
-      `${process.env.BASE_API_URL}/auths/resend?email=${email}`,
+      `${process.env.BASE_API_URL}/auth/resend?email=${email}`,
       {
         method: "POST",
         headers: {

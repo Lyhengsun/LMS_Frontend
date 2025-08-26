@@ -1,14 +1,14 @@
 "use client";
 
 import { Sidebar } from "@/src/components/Sidebar";
-import { Avatar, AvatarFallback } from "@/src/components/ui/avatar";
-import { Badge } from "@/src/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "@/src/components/ui/card";
+} from "@/components/ui/card";
 import { useLeaderboard } from "@/src/lib/hooks/useLeaderboard";
 import { Medal, Star, TrendingUp, Trophy } from "lucide-react";
 import React from "react";

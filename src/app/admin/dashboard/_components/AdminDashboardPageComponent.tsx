@@ -1,12 +1,12 @@
 "use client";
 import { Sidebar } from "@/src/components/Sidebar";
-import { Badge } from "@/src/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "@/src/components/ui/card";
+} from "@/components/ui/card";
 import { BookOpen, Clock, Users } from "lucide-react";
 import React, { useEffect, useState } from "react";
 

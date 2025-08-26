@@ -7,7 +7,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -16,7 +15,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import React from "react";
-import { Control, FieldValues } from "react-hook-form";
 
 const CustomSelectFormField = ({
   control,
@@ -26,11 +24,11 @@ const CustomSelectFormField = ({
   description = null,
   options,
 }: {
-  control: Control<FieldValues, any, FieldValues>;
+  control: any;
   fieldName: string;
   label: string;
   placeholder: string;
-  description: string | null;
+  description?: string | null;
   options: Array<{ label: string; value: string }>;
 }) => {
   return (
@@ -47,8 +45,8 @@ const CustomSelectFormField = ({
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              {options.map((o) => (
-                <SelectItem value={o.value}>{o.label}</SelectItem>
+              {options.map((o, index) => (
+                <SelectItem key={index} value={o.value}>{o.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>

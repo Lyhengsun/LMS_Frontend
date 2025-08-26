@@ -1,9 +1,8 @@
-
-import React, { useRef, useState } from 'react';
-import { Button } from '@/src/components/ui/button';
-import { Input } from '@/src/components/ui/input';
-import { Upload, File, X, Download } from 'lucide-react';
-import { useToast } from '@/src/lib/hooks/use-toast';
+import React, { useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Upload, File, X, Download } from "lucide-react";
+import { toast } from "sonner";
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
@@ -18,30 +17,27 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   acceptedTypes = ".pdf,.doc,.docx,.zip,.txt",
   maxSize = 10,
   currentFile,
-  onRemove
+  onRemove,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
   const [dragOver, setDragOver] = useState(false);
 
   const handleFileSelect = (file: File) => {
     if (file.size > maxSize * 1024 * 1024) {
-      toast({
-        title: "File too large",
+      toast.error("File too large", {
         description: `File size must be less than ${maxSize}MB`,
-        variant: "destructive"
       });
       return;
     }
 
-    const fileExtension = file.name.split('.').pop()?.toLowerCase();
-    const allowedExtensions = acceptedTypes.split(',').map(type => type.trim().replace('.', ''));
-    
-    if (!allowedExtensions.includes(fileExtension || '')) {
-      toast({
-        title: "Invalid file type",
+    const fileExtension = file.name.split(".").pop()?.toLowerCase();
+    const allowedExtensions = acceptedTypes
+      .split(",")
+      .map((type) => type.trim().replace(".", ""));
+
+    if (!allowedExtensions.includes(fileExtension || "")) {
+      toast.error("Invalid file type", {
         description: `Please upload files with extensions: ${acceptedTypes}`,
-        variant: "destructive"
       });
       return;
     }
@@ -52,7 +48,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
-    
+
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) {
       handleFileSelect(files[0]);
@@ -67,13 +63,13 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   };
 
   const getFileIcon = (fileName: string) => {
-    const extension = fileName.split('.').pop()?.toLowerCase();
+    const extension = fileName.split(".").pop()?.toLowerCase();
     return <File className="w-4 h-4" />;
   };
 
   const downloadFile = (fileName: string) => {
     // In a real app, this would be an API call to download the file
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = `/api/files/download/${fileName}`;
     link.download = fileName;
     link.click();
@@ -97,11 +93,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
               Download
             </Button>
             {onRemove && (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={onRemove}
-              >
+              <Button size="sm" variant="ghost" onClick={onRemove}>
                 <X className="w-4 h-4" />
               </Button>
             )}
@@ -110,7 +102,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       ) : (
         <div
           className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-            dragOver ? 'border-blue-400 bg-blue-50' : 'border-gray-300'
+            dragOver ? "border-blue-400 bg-blue-50" : "border-gray-300"
           }`}
           onDrop={handleDrop}
           onDragOver={(e) => {

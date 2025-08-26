@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { Bell, Clock, AlertCircle, Info, X, ClipboardList } from 'lucide-react';
-import { Button } from '@/src/components/ui/button';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/src/components/ui/dropdown-menu';
-import { useNotifications } from '@/hooks/useNotifications';
-import { Badge } from '@/src/components/ui/badge';
+} from '@/components/ui/dropdown-menu';
+import { Badge } from '@/components/ui/badge';
+import { useNotifications } from '../lib/hooks/useNotifications';
 
 export const NotificationDropdown = () => {
   const { notifications, markAsRead, markAllAsRead, deleteNotification, getUnreadCount } = useNotifications();

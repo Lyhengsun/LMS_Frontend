@@ -1,14 +1,7 @@
 "use client";
-import { Sidebar } from "@/src/components/Sidebar";
-import { Badge } from "@/src/components/ui/badge";
-import { Button } from "@/src/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/src/components/ui/card";
-import { useToast } from "@/src/components/ui/use-toast";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   AlertCircle,
   BookOpen,
@@ -18,6 +11,7 @@ import {
   XCircle,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface Course {
   id: string;
@@ -34,7 +28,6 @@ interface Course {
 }
 
 const CourseManagementPageComponent = () => {
-  const { toast } = useToast();
   const [pendingCourses, setPendingCourses] = useState<Course[]>([]);
   const [approvedCourses, setApprovedCourses] = useState<Course[]>([]);
   const [rejectedCourses, setRejectedCourses] = useState<Course[]>([]);
@@ -104,8 +97,7 @@ const CourseManagementPageComponent = () => {
     // Trigger storage event for other components
     window.dispatchEvent(new Event("storage"));
 
-    toast({
-      title: "Course Approved",
+    toast("Course Approved", {
       description:
         "The course has been approved and is now available to students",
     });
@@ -142,10 +134,8 @@ const CourseManagementPageComponent = () => {
     setPendingCourses((prev) => prev.filter((c) => c.id !== courseId));
     setRejectedCourses((prev) => [rejectedCourse, ...prev]);
 
-    toast({
-      title: "Course Rejected",
+    toast.error("Course Rejected", {
       description: `The course has been rejected. Reason: ${reason}`,
-      variant: "destructive",
     });
   };
 

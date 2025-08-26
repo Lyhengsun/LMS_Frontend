@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Play, CheckCircle, Clock, SkipForward, RotateCcw } from 'lucide-react';
-import { Button } from '@/src/components/ui/button';
-import { Progress } from '@/src/components/ui/progress';
-import { Badge } from '@/src/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { UdemyVideoPlayer } from '@/src/components/UdemyVideoPlayer';
 import { LessonTabs } from '@/src/components/LessonTabs';
 import { LessonCompletionCelebration } from '@/src/components/LessonCompletionCelebration';
 import { useCourseProgressStore } from '@/src/components/CourseProgress';
-import { useVideoProgress } from '@/hooks/useVideoProgress';
+// import { useVideoProgress } from '@/hooks/useVideoProgress';
 import { CourseCompletionCongrats } from '@/src/components/CourseCompletionCongrats';
+import { useVideoProgress } from '../lib/hooks/useVideoProgress';
 
 interface CourseLessonViewProps {
   course: {

@@ -5,7 +5,8 @@ const StudentLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
       <Sidebar role="instructor" />
-      {children}{" "}
+      
+      <div className="flex-1 overflow-y-scroll h-dvh">{children}{" "}</div>
     </div>
   );
 };

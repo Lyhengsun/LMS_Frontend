@@ -1,11 +1,11 @@
-
+"use client"
 import { useState } from 'react';
 import { MessageCircle, Send, ThumbsUp, Reply, MoreHorizontal, Heart, Download, Eye } from 'lucide-react';
-import { Button } from '@/src/components/ui/button';
-import { Input } from '@/src/components/ui/input';
-import { Textarea } from '@/src/components/ui/textarea';
-import { Card, CardContent } from '@/src/components/ui/card';
-import { Avatar, AvatarFallback } from '@/src/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 interface Reply {
   id: number;

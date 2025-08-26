@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/src/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileText, MessageCircle, BookOpen } from 'lucide-react';
 import { LessonOverview } from '@/src/components/LessonOverview';
 import { VideoComments } from '@/src/components/VideoComments';

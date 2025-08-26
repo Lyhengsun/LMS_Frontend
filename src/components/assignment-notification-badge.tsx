@@ -1,5 +1,5 @@
 
-import { Badge } from '@/src/components/ui/badge';
+import { Badge } from '@/components/ui/badge';
 import { getUserRole } from '@/src/lib/utils';
 import { useAssignmentStore } from '../lib/hooks/useAssignmentStore';
 import { useNotifications } from '../lib/hooks/useNotifications';

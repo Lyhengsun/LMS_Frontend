@@ -1,24 +1,23 @@
 "use client";
 import { Sidebar } from "@/src/components/Sidebar";
-import { Badge } from "@/src/components/ui/badge";
-import { Button } from "@/src/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "@/src/components/ui/card";
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/src/components/ui/dialog";
-import { Input } from "@/src/components/ui/input";
-import { Label } from "@/src/components/ui/label";
-import { Progress } from "@/src/components/ui/progress";
-import { RadioGroup, RadioGroupItem } from "@/src/components/ui/radio-group";
-import { useToast } from "@/src/lib/hooks/use-toast";
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useQuizStore } from "@/src/lib/hooks/useQuizStore";
 import {
   Brain,
@@ -34,6 +33,7 @@ import {
   X,
 } from "lucide-react";
 import React, { useState } from "react";
+import { toast } from "sonner";
 
 const StudentQuizPageComponent = () => {
   const {
@@ -42,7 +42,6 @@ const StudentQuizPageComponent = () => {
     startQuizAttempt,
     submitQuizAttempt,
   } = useQuizStore();
-  const { toast } = useToast();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [activeQuiz, setActiveQuiz] = useState<any>(null);
@@ -259,11 +258,17 @@ const StudentQuizPageComponent = () => {
       submitQuizAttempt(activeQuiz.attemptId, answers);
       setShowResults(true);
 
-      toast({
-        title: results.passed ? "Quiz Completed!" : "Quiz Completed",
-        description: `You scored ${score}/${activeQuiz.totalPoints} points (${results.percentage}%)`,
-        variant: results.passed ? "default" : "destructive",
-      });
+      const message = results.passed ? "Quiz Completed!" : "Quiz Completed";
+      const description = `You scored ${score}/${activeQuiz.totalPoints} points (${results.percentage}%)`;
+      if (results.passed) {
+        toast.success(message, {
+          description: description
+        })
+      } else {
+        toast.warning(message, {
+          description: description
+        })
+      }
     }
   };
 

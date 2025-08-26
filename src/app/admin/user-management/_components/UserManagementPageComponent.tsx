@@ -22,6 +22,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Clock,
+  Fullscreen,
   GraduationCap,
   Plus,
   UserCheck,
@@ -31,38 +32,18 @@ import React, { useEffect, useState } from "react";
 import AllUserTabComponent from "./AllUserTabComponent";
 import { toast } from "sonner";
 import PendingApprovalUserTabComponent from "./PendingApprovalUserTabComponent";
+import StatusBadgeComponent from "./StatusBadgeComponent";
+import { string } from "zod";
+import User from "@/src/type/User";
+import { format } from "date-fns";
+import CustomPaginationHref from "@/src/app/_components/CustomPaginationHref";
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: "ROLE_STUDENT" | "ROLE_INSTRUCTOR" | "ROLE_ADMIN";
-  status: "active" | "disabled" | "revoked";
-  joinDate: string;
-  lastActive: string;
-  courses?: number;
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
-  mustChangePassword?: boolean;
-}
-
-interface PendingRegistration {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: "ROLE_STUDENT" | "ROLE_INSTRUCTOR";
-  phone?: string;
-  registrationDate: string;
-  status: "pending";
-}
-
-const UserManagementPageComponent = () => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [pendingRegistrations, setPendingRegistrations] = useState<
-    PendingRegistration[]
-  >([]);
+const UserManagementPageComponent = ({
+  fetchedUnapprovedUsers,
+}: {
+  fetchedUnapprovedUsers: { items: User[]; pagination: any };
+}) => {
+  const { items: pendingRegistrations } = fetchedUnapprovedUsers;
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -74,100 +55,6 @@ const UserManagementPageComponent = () => {
     phone: "",
     password: "",
   });
-
-  // Load users and pending registrations
-  useEffect(() => {
-    const loadData = () => {
-      const demoUsers: User[] = [
-        {
-          id: "1",
-          name: "Kong KEAT",
-          email: "student@test.com",
-          role: "ROLE_STUDENT",
-          status: "active",
-          joinDate: "2024-01-15",
-          lastActive: "2 hours ago",
-          courses: 3,
-          firstName: "Kong",
-          lastName: "KEAT",
-          phone: "+60123456789",
-        },
-        {
-          id: "2",
-          name: "John Smith",
-          email: "instructor@test.com",
-          role: "ROLE_INSTRUCTOR",
-          status: "active",
-          joinDate: "2023-12-05",
-          lastActive: "30 minutes ago",
-          firstName: "John",
-          lastName: "Smith",
-          phone: "+60198765432",
-        },
-        {
-          id: "3",
-          name: "Admin User",
-          email: "admin@test.com",
-          role: "ROLE_ADMIN",
-          status: "active",
-          joinDate: "2023-11-01",
-          lastActive: "1 hour ago",
-          firstName: "ROLE_ADMIN",
-          lastName: "User",
-          phone: "+60111222333",
-        },
-      ];
-
-      // Load approved users
-      const approvedUsers = JSON.parse(
-        localStorage.getItem("approvedUsers") || "[]"
-      );
-      const registeredUsers: User[] = approvedUsers.map(
-        (user: any, index: number) => ({
-          id: `reg_${index + 1}`,
-          name: `${user.firstName} ${user.lastName}`,
-          email: user.email,
-          role: user.role,
-          status: "active",
-          joinDate: user.approvedDate || new Date().toISOString().split("T")[0],
-          lastActive: "Never",
-          courses: user.role === "ROLE_STUDENT" ? 0 : undefined,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          phone: user.phone || "Not provided",
-        })
-      );
-
-      // Load admin-created users
-      const adminUsers = JSON.parse(localStorage.getItem("adminUsers") || "[]");
-      const adminCreatedUsers: User[] = adminUsers.map((user: any) => ({
-        id: user.id,
-        name: `${user.firstName} ${user.lastName}`,
-        email: user.email,
-        role: user.role,
-        status: user.status,
-        joinDate: user.joinDate,
-        lastActive: user.lastActive || "Never",
-        courses: user.role === "ROLE_STUDENT" ? 0 : undefined,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        phone: user.phone || "Not provided",
-        mustChangePassword: user.mustChangePassword,
-      }));
-
-      setUsers([...demoUsers, ...registeredUsers, ...adminCreatedUsers]);
-
-      // Load pending registrations
-      const pending = JSON.parse(
-        localStorage.getItem("pendingRegistrations") || "[]"
-      );
-      setPendingRegistrations(
-        pending.filter((reg: any) => reg.status === "pending")
-      );
-    };
-
-    loadData();
-  }, []);
 
   const getRoleBadge = (role: string) => {
     switch (role) {
@@ -236,167 +123,26 @@ const UserManagementPageComponent = () => {
     }
   };
 
-  const handleCreateUser = () => {
-    if (
-      !newUser.firstName ||
-      !newUser.lastName ||
-      !newUser.email ||
-      !newUser.password
-    ) {
-      toast.error("Error", {
-        description: "Please fill in all required fields",
-      });
-      return;
-    }
-
-    const userId = `admin_${Date.now()}`;
-    const newUserData: User = {
-      id: userId,
-      name: `${newUser.firstName} ${newUser.lastName}`,
-      email: newUser.email,
-      role: newUser.role,
-      status: "active",
-      joinDate: new Date().toISOString().split("T")[0],
-      lastActive: "Never",
-      courses: newUser.role === "ROLE_STUDENT" ? 0 : undefined,
-      firstName: newUser.firstName,
-      lastName: newUser.lastName,
-      phone: newUser.phone || "Not provided",
-      mustChangePassword: true,
-    };
-
-    // Save to localStorage for admin-created users
-    const adminUsers = JSON.parse(localStorage.getItem("adminUsers") || "[]");
-    adminUsers.push({
-      id: userId,
-      firstName: newUser.firstName,
-      lastName: newUser.lastName,
-      email: newUser.email,
-      password: newUser.password,
-      role: newUser.role,
-      status: "active",
-      joinDate: new Date().toISOString().split("T")[0],
-      lastActive: "Never",
-      phone: newUser.phone || "Not provided",
-      mustChangePassword: true,
-    });
-    localStorage.setItem("adminUsers", JSON.stringify(adminUsers));
-
-    setUsers((prev) => [...prev, newUserData]);
-    setNewUser({
-      firstName: "",
-      lastName: "",
-      email: "",
-      role: "ROLE_STUDENT",
-      phone: "",
-      password: "",
-    });
-    setCreateDialogOpen(false);
-
-    toast.success("User Created",{
-      description: `${newUserData.name} has been created successfully. They must change their password on first login.`,
-    });
-  };
-
-  const handleResetPassword = (user: User) => {
-    const newPassword = prompt(`Enter new password for ${user.name}:`);
-    if (newPassword) {
-      // Update admin-created users
-      const adminUsers = JSON.parse(localStorage.getItem("adminUsers") || "[]");
-      const updatedAdminUsers = adminUsers.map((adminUser: any) =>
-        adminUser.id === user.id
-          ? { ...adminUser, password: newPassword, mustChangePassword: true }
-          : adminUser
-      );
-      localStorage.setItem("adminUsers", JSON.stringify(updatedAdminUsers));
-
-      // Update local state
-      setUsers((prevUsers) =>
-        prevUsers.map((u) =>
-          u.id === user.id ? { ...u, mustChangePassword: true } : u
-        )
-      );
-
-      toast.success(
-        "Password Reset",{
-        description: `Password reset for ${user.name}. They must change it on next login.`,
-      });
-    }
-  };
-
   const handleApproveRegistration = (
     registrationId: string,
     approved: boolean
   ) => {
-    const registration = pendingRegistrations.find(
-      (reg) => reg.id === registrationId
-    );
-    if (!registration) return;
-
+    const registration = {
+      fullName: "user",
+    };
+    const title = approved ? "Registration Approved" : "Registration Rejected";
+    const description = `${registration.fullName}'s registration has been ${
+      approved ? "approved" : "rejected"
+    }`;
     if (approved) {
-      // Move to approved users with their original password from registration
-      const approvedUsers = JSON.parse(
-        localStorage.getItem("approvedUsers") || "[]"
-      );
-      const pendingRegistrations = JSON.parse(
-        localStorage.getItem("pendingRegistrations") || "[]"
-      );
-      const fullRegistration = pendingRegistrations.find(
-        (reg: any) => reg.id === registrationId
-      );
-
-      approvedUsers.push({
-        ...registration,
-        approvedDate: new Date().toISOString().split("T")[0],
-        password: fullRegistration?.password || "defaultPassword123!", // Use original password from registration
+      toast.success(title, {
+        description: description,
       });
-      localStorage.setItem("approvedUsers", JSON.stringify(approvedUsers));
-
-      // Add to users list
-      const newUser: User = {
-        id: `reg_${Date.now()}`,
-        name: `${registration.firstName} ${registration.lastName}`,
-        email: registration.email,
-        role: registration.role,
-        status: "active",
-        joinDate: new Date().toISOString().split("T")[0],
-        lastActive: "Never",
-        courses: registration.role === "ROLE_STUDENT" ? 0 : undefined,
-        firstName: registration.firstName,
-        lastName: registration.lastName,
-        phone: registration.phone || "Not provided",
-      };
-      setUsers((prev) => [...prev, newUser]);
+    } else {
+      toast.error(title, {
+        description: description,
+      });
     }
-
-    // Update pending registrations
-    const updatedPending = JSON.parse(
-      localStorage.getItem("pendingRegistrations") || "[]"
-    );
-    const finalPending = updatedPending.map((reg: any) =>
-      reg.id === registrationId
-        ? { ...reg, status: approved ? "approved" : "rejected" }
-        : reg
-    );
-    localStorage.setItem("pendingRegistrations", JSON.stringify(finalPending));
-
-    setPendingRegistrations((prev) =>
-      prev.filter((reg) => reg.id !== registrationId)
-    );
-
-    const title = approved ? "Registration Approved" : "Registration Rejected" 
-    const description = `${registration.firstName} ${
-        registration.lastName
-      }'s registration has been ${approved ? "approved" : "rejected"}`
-      if (approved) {
-        toast.success(title, {
-          description: description
-        })
-      } else {
-        toast.error(title, {
-          description: description
-        })
-      }
   };
 
   const handleViewUser = (user: User) => {
@@ -404,11 +150,12 @@ const UserManagementPageComponent = () => {
     setViewDialogOpen(true);
   };
 
+  const users : User[] = [];
+
   const userStats = {
     total: users.length,
     students: users.filter((u) => u.role === "ROLE_STUDENT").length,
     instructors: users.filter((u) => u.role === "ROLE_INSTRUCTOR").length,
-    active: users.filter((u) => u.status === "active").length,
   };
 
   return (
@@ -502,7 +249,10 @@ const UserManagementPageComponent = () => {
                       <Select
                         value={newUser.role}
                         onValueChange={(
-                          value: "ROLE_STUDENT" | "ROLE_INSTRUCTOR" | "ROLE_ADMIN"
+                          value:
+                            | "ROLE_STUDENT"
+                            | "ROLE_INSTRUCTOR"
+                            | "ROLE_ADMIN"
                         ) => setNewUser({ ...newUser, role: value })}
                       >
                         <SelectTrigger>
@@ -510,7 +260,9 @@ const UserManagementPageComponent = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="ROLE_STUDENT">Student</SelectItem>
-                          <SelectItem value="ROLE_INSTRUCTOR">Instructor</SelectItem>
+                          <SelectItem value="ROLE_INSTRUCTOR">
+                            Instructor
+                          </SelectItem>
                           <SelectItem value="ROLE_ADMIN">Admin</SelectItem>
                         </SelectContent>
                       </Select>
@@ -526,9 +278,6 @@ const UserManagementPageComponent = () => {
                         placeholder="Enter phone number"
                       />
                     </div>
-                    <Button onClick={handleCreateUser} className="w-full">
-                      Create User
-                    </Button>
                   </div>
                 </DialogContent>
               </Dialog>
@@ -620,11 +369,11 @@ const UserManagementPageComponent = () => {
             </TabsList>
 
             <TabsContent value="users">
-              <AllUserTabComponent users={users} />
+              <AllUserTabComponent handleViewUser={handleViewUser} />
             </TabsContent>
 
             <TabsContent value="pending">
-              <PendingApprovalUserTabComponent pendingRegistrations={pendingRegistrations} />
+              <PendingApprovalUserTabComponent />
             </TabsContent>
           </Tabs>
         </main>
@@ -648,7 +397,7 @@ const UserManagementPageComponent = () => {
                   style={{ backgroundColor: "hsl(var(--admin-primary))" }}
                 >
                   <span className="text-white text-xl font-bold">
-                    {selectedUser.name
+                    {selectedUser.fullName
                       .split(" ")
                       .map((n) => n[0])
                       .join("")}
@@ -656,7 +405,7 @@ const UserManagementPageComponent = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold dark:text-white">
-                    {selectedUser.name}
+                    {selectedUser.fullName}
                   </h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     {selectedUser.email}
@@ -668,18 +417,10 @@ const UserManagementPageComponent = () => {
               <div className="grid grid-cols-2 gap-4 pt-4 border-t dark:border-gray-700">
                 <div>
                   <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    First Name
+                    Full Name
                   </p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {selectedUser.firstName || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Last Name
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {selectedUser.lastName || "N/A"}
+                    {selectedUser.fullName || "N/A"}
                   </p>
                 </div>
                 <div>
@@ -687,29 +428,41 @@ const UserManagementPageComponent = () => {
                     Phone
                   </p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {selectedUser.phone || "N/A"}
+                    {selectedUser.phoneNumber || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Status
                   </p>
-                  {getStatusBadge(selectedUser.status)}
+                  <StatusBadgeComponent user={selectedUser} />
+                  {/* {getStatusBadge(selectedUser.isApproved)} */}
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Join Date
+                    Verified
                   </p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {selectedUser.joinDate}
+                    {selectedUser.isVerified ? (
+                      <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                        Verified
+                      </Badge>
+                    ) : (
+                      <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                        Unverified
+                      </Badge>
+                    )}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Last Active
+                    Created Date
                   </p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {selectedUser.lastActive}
+                    {format(
+                      new Date(selectedUser.createdAt),
+                      "dd/MM/yyyy hh:mm:ss a"
+                    )}
                   </p>
                 </div>
               </div>
