@@ -6,6 +6,7 @@ import {
   deleteUserByIdService,
   disableUserByIdService,
   getAllUserForAdminService,
+  getCurrentUserService,
 } from "../service/user.service";
 import User from "../type/User";
 
@@ -64,5 +65,14 @@ export const disableUserByIdAction = async (
   } else {
     console.log("deleteUserByIdAction error", res);
     return { success: false, message: res.detail };
+  }
+};
+
+export const getCurrentUserAction = async () => {
+  try {
+    const data = await getCurrentUserService();
+    return { success: true, data: data};
+  } catch (error) {
+    return { success: false, message: error.message };
   }
 };

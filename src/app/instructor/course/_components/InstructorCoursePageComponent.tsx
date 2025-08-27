@@ -128,7 +128,7 @@ const InstructorCoursePageComponent = () => {
                   <DialogTitle>Create New Course</DialogTitle>
                 </DialogHeader>
                 <Form {...form}>
-                  <form onSubmit={}></form>
+                  <form onSubmit={form.handleSubmit}></form>
                 </Form>
               </DialogContent>
             </Dialog>

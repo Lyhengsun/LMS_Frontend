@@ -130,7 +130,7 @@ const CourseDetailPageComponent = ({
         {/* Video Player */}
         <div className="p-6">
           <EnhancedVideoPlayer
-            src={selectedVideo?.videoUrl!}
+            src={`${process.env.BASE_API_URL}/files/video/${selectedVideo?.videoUrl!}`}
             title={selectedVideo?.title}
             onProgress={(currentTime, duration) => {
               handleVideoProgress(
@@ -173,7 +173,7 @@ const CourseDetailPageComponent = ({
         {/* Course Content Tabs */}
         <div className="flex-1 bg-white">
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-gray-50 rounded-none border-b">
+            <TabsList className="grid w-full grid-cols-1 bg-gray-50 rounded-none border-b">
               <TabsTrigger
                 value="overview"
                 className="flex items-center space-x-2"
@@ -181,36 +181,32 @@ const CourseDetailPageComponent = ({
                 <BookOpen className="w-4 h-4" />
                 <span>Overview</span>
               </TabsTrigger>
-              <TabsTrigger
+              {/* <TabsTrigger
                 value="resources"
                 className="flex items-center space-x-2"
               >
                 <Play className="w-4 h-4" />
                 <span>Resources</span>
-              </TabsTrigger>
-              <TabsTrigger
+              </TabsTrigger> */}
+              {/* <TabsTrigger
                 value="comments"
                 className="flex items-center space-x-2"
               >
                 <MessageCircle className="w-4 h-4" />
                 <span>Comments</span>
-              </TabsTrigger>
+              </TabsTrigger> */}
             </TabsList>
 
             <TabsContent value="overview" className="p-6 space-y-6">
               <div>
-                <h2 className="text-xl font-bold mb-4">
-                  {selectedVideo?.title}
-                </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="md:col-span-2">
                     <div className="prose prose-sm max-w-none">
+                <h2 className="text-xl font-bold">
+                  {selectedVideo?.title}
+                </h2>
                       <p className="text-gray-700 leading-relaxed">
-                        In this lesson, you'll learn the fundamentals of{" "}
-                        {selectedVideo?.title.toLowerCase()}. This comprehensive
-                        tutorial covers essential concepts, practical examples,
-                        and best practices that will help you master this
-                        important topic.
+                        {selectedCourse.description}
                       </p>
                       <h4 className="font-semibold mt-4 mb-2">
                         What you'll learn:
@@ -225,11 +221,11 @@ const CourseDetailPageComponent = ({
                   </div>
                   <div className="space-y-4">
                     <Card className="p-4">
-                      <h4 className="font-semibold mb-2">Lesson Details</h4>
+                      <h4 className="font-semibold">Lesson Details</h4>
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Duration:</span>
-                          <span>{selectedVideo?.duration}</span>
+                          <span>{selectedVideo?.duration} minutes</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Progress:</span>
@@ -277,19 +273,19 @@ const CourseDetailPageComponent = ({
               </div>
             </TabsContent>
 
-            <TabsContent value="resources" className="p-6">
+            {/* <TabsContent value="resources" className="p-6">
               <LessonResources
                 courseId={selectedCourse.id}
                 lessonId={selectedVideo?.id!}
               />
-            </TabsContent>
+            </TabsContent> */}
 
-            <TabsContent value="comments" className="p-6">
+            {/* <TabsContent value="comments" className="p-6">
               <VideoComments
                 courseId={selectedCourse.id}
                 lessonId={selectedVideo?.id!}
               />
-            </TabsContent>
+            </TabsContent> */}
           </Tabs>
         </div>
       </div>
@@ -337,23 +333,25 @@ const CourseDetailPageComponent = ({
                         index + 1
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p
-                        className={`text-sm font-medium ${
-                          isCurrent ? "text-purple-700" : "text-gray-900"
-                        }`}
-                      >
-                        {lesson.title}
-                      </p>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <Clock className="w-3 h-3 text-gray-400" />
-                        <span className="text-xs text-gray-500">
-                          {lesson.duration}
-                        </span>
-                        {isCurrent && (
-                          <PlayCircle className="w-3 h-3 text-purple-500" />
-                        )}
+                    <div className="flex-1 min-w-0 flex justify-between items-center">
+                      <div>
+                        <p
+                          className={`text-sm font-medium ${
+                            isCurrent ? "text-purple-700" : "text-gray-900"
+                          }`}
+                        >
+                          {lesson.title}
+                        </p>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <Clock className="w-3 h-3 text-gray-400" />
+                          <span className="text-xs text-gray-500">
+                            {lesson.duration} minutes
+                          </span>
+                        </div>
                       </div>
+                        {isCurrent && (
+                          <PlayCircle className="w-5 h-5 text-purple-500" />
+                        )}
                     </div>
                   </div>
                 </div>

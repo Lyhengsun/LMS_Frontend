@@ -172,7 +172,7 @@ const UserManagementPageComponent = ({
               </p>
             </div>
             <div className="flex items-center space-x-4">
-              <Dialog
+              {/* <Dialog
                 open={createDialogOpen}
                 onOpenChange={setCreateDialogOpen}
               >
@@ -280,7 +280,7 @@ const UserManagementPageComponent = ({
                     </div>
                   </div>
                 </DialogContent>
-              </Dialog>
+              </Dialog> */}
             </div>
           </div>
         </header>

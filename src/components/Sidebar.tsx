@@ -11,7 +11,11 @@ import {
   Bot,
   Trophy,
 } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import User from "../type/User";
+import { getCurrentUserAction } from "../action/userAction";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface SidebarItem {
   label: string;
@@ -75,7 +79,16 @@ export const Sidebar = ({ role = "student" }: { role?: string }) => {
   const router = useRouter();
   const pathname = usePathname();
   const userRole = role;
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   // const userRole = "instructor";
+
+  useEffect(() => {
+    const loadCurrentUser = async () => {
+      const currentUser = await getCurrentUserAction();
+      setCurrentUser(currentUser.data!);
+    };
+    loadCurrentUser();
+  }, []);
 
   const sidebarItems = getSidebarItems(userRole);
 
@@ -131,7 +144,21 @@ export const Sidebar = ({ role = "student" }: { role?: string }) => {
       {/* User Profile */}
       <div className="p-4 border-t border-gray-200">
         <div className="flex items-center">
-          <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mr-3">
+          <Avatar className="h-8 w-8 mr-3">
+            <AvatarImage
+              src={`${process.env.BASE_API_URL}/files/preview-file/${currentUser?.avatarUrl}`}
+              alt="@shadcn"
+            />
+            <AvatarFallback>
+              {currentUser?.fullName
+                ? currentUser.fullName
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                : "U"}
+            </AvatarFallback>
+          </Avatar>
+          {/* <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mr-3">
             <span className="text-gray-700 text-sm font-medium">
               {userRole === "student"
                 ? "A"
@@ -139,16 +166,12 @@ export const Sidebar = ({ role = "student" }: { role?: string }) => {
                 ? "D"
                 : "A"}
             </span>
-          </div>
+          </div> */}
           <div className="flex-1">
-            <p className="text-sm font-medium text-gray-900">
-              {userRole === "student"
-                ? "Alex Johnson"
-                : userRole === "instructor"
-                ? "Dr. Smith"
-                : "Admin User"}
+            <p className="text-sm font-medium text-gray-900">{}</p>
+            <p className="text-xs text-gray-500 capitalize">
+              {currentUser?.fullName}
             </p>
-            <p className="text-xs text-gray-500 capitalize">{userRole}</p>
           </div>
         </div>
         <button

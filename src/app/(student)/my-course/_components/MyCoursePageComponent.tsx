@@ -1,36 +1,23 @@
 "use client";
-import { CourseCompletionConfetti } from "@/src/components/CourseCompletionConfetti";
 import { useCourseProgressStore } from "@/src/components/CourseProgress";
-import { EnhancedVideoPlayer } from "@/src/components/EnhancedVideoPlayer";
-import { LessonCompletionCelebration } from "@/src/components/LessonCompletionCelebration";
-import { LessonResources } from "@/src/components/LessonResources";
-import { Sidebar } from "@/src/components/Sidebar";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { VideoComments } from "@/src/components/VideoComments";
 import { useVideoProgress } from "@/src/lib/hooks/useVideoProgress";
-import confetti from "canvas-confetti";
 import {
-  ArrowLeft,
   BookOpen,
-  CheckCircle,
   Clock,
   Filter,
-  MessageCircle,
-  Play,
   PlayCircle,
   Search,
   Users,
 } from "lucide-react";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import Course from "@/src/type/Course";
 
-const MyCoursePageComponent = () => {
+const MyCoursePageComponent = ({ courses }: { courses: Course[] }) => {
   //   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
@@ -46,131 +33,6 @@ const MyCoursePageComponent = () => {
     selectedCourse?.id || 0,
     selectedVideo?.id || 0
   );
-
-  const courses = [
-    {
-      id: 1,
-      title: "React Development Masterclass",
-      instructor: "Dr. Sarah Johnson",
-      duration: 40,
-      level: "Intermediate",
-      students: 1250,
-      category: "development",
-      description: "loremaoieg ajgaejgeajj aejgajgjga",
-      thumbnail:
-        "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=225&fit=crop",
-      lessons: [
-        {
-          id: 1,
-          title: "Introduction to React",
-          duration: 40,
-          videoUrl:
-            "http://localhost:8090/api/v1/files/video/502702aa-757a-428d-b1a7-2597b0f88b47",
-          isCompleted: false,
-        },
-        {
-          id: 2,
-          title: "Components and Props",
-          duration: 40,
-          videoUrl:
-            "http://localhost:8090/api/v1/files/video/faef3f63-166a-4d3c-b6fc-2d08d3f0fe19",
-          isCompleted: false,
-        },
-        {
-          id: 3,
-          title: "State Management",
-          duration: 40,
-          videoUrl:
-            "http://localhost:8090/api/v1/files/video/b1e9e194-0377-4c42-b5fc-cfe34d03cb18",
-          isCompleted: false,
-        },
-        {
-          id: 4,
-          title: "Hooks in Depth",
-          duration: 90,
-          videoUrl:
-            "http://localhost:8090/api/v1/files/video/faef3f63-166a-4d3c-b6fc-2d08d3f0fe19",
-          isCompleted: false,
-        },
-        {
-          id: 5,
-          title: "Advanced Patterns",
-          duration: 40,
-          videoUrl:
-            "http://localhost:8090/api/v1/files/video/faef3f63-166a-4d3c-b6fc-2d08d3f0fe19",
-          isCompleted: false,
-        },
-      ],
-    },
-    {
-      id: 2,
-      title: "Python for Data Science",
-      instructor: "Prof. Michael Chen",
-      duration: 40,
-      level: "Beginner",
-      students: 890,
-      category: "data-science",
-      description: "loremaoieg ajgaejgeajj aejgajgjga",
-      thumbnail:
-        "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400&h=225&fit=crop",
-      lessons: [
-        {
-          id: 1,
-          title: "Python Basics",
-          duration: 35,
-          videoUrl:
-            "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4",
-          isCompleted: false,
-        },
-        {
-          id: 2,
-          title: "NumPy and Pandas",
-          duration: 28,
-          videoUrl:
-            "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4",
-          isCompleted: false,
-        },
-        {
-          id: 3,
-          title: "Data Visualization",
-          duration: 25,
-          videoUrl:
-            "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4",
-          isCompleted: false,
-        },
-      ],
-    },
-    {
-      id: 3,
-      title: "UI/UX Design Fundamentals",
-      instructor: "Emma Rodriguez",
-      duration: 25,
-      level: "Beginner",
-      students: 2100,
-      category: "design",
-      description: "loremaoieg ajgaejgeajj aejgajgjga",
-      thumbnail:
-        "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=225&fit=crop",
-      lessons: [
-        {
-          id: 1,
-          title: "Design Principles",
-          duration: 18,
-          videoUrl:
-            "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4",
-          isCompleted: false,
-        },
-        {
-          id: 2,
-          title: "User Research",
-          duration: 22,
-          videoUrl:
-            "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4",
-          isCompleted: false,
-        },
-      ],
-    },
-  ];
 
   const categories = [
     "all",
@@ -255,7 +117,7 @@ const MyCoursePageComponent = () => {
               <div key={course.id}>
                 <div className="relative">
                   <img
-                    src={course.thumbnail}
+                    src={`${process.env.BASE_API_URL}/files/preview-file/${course.thumbnail}`}
                     alt={course.title}
                     className="w-full h-36 object-cover rounded-t-lg"
                   />
@@ -265,10 +127,7 @@ const MyCoursePageComponent = () => {
                         <span>
                           {courseProgress.progressPercentage}% complete
                         </span>
-                        <span>
-                          {courseProgress.completedLessons.length}/
-                          {course.lessons.length} lessons
-                        </span>
+                        <span>{courseProgress.completedLessons.length}/</span>
                       </div>
                       <Progress
                         value={courseProgress.progressPercentage}
@@ -300,6 +159,7 @@ const MyCoursePageComponent = () => {
                           <Users className="w-4 h-4" />
                           <span>{course.students} students</span>
                         </div>
+
                         <div className="flex items-center space-x-1">
                           <BookOpen className="w-4 h-4" />
                           <span>{course.lessons.length} lessons</span>
@@ -341,7 +201,6 @@ const MyCoursePageComponent = () => {
       </div>
     </div>
   );
-
 };
 
 export default MyCoursePageComponent;
