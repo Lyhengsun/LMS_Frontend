@@ -1,6 +1,7 @@
 import { auth } from "@/src/auth";
+import AuthHeaders from "@/src/type/AuthHeaders";
 
-const headerToken = async () => {
+const headerToken = async (): Promise<AuthHeaders | null> => {
   const session = await auth();
   if (!session) {
     return null;

@@ -64,7 +64,7 @@ const getSidebarItems = (role: string | null): SidebarItem[] => {
         { label: "Quizzes", icon: ListOrdered, path: "/quiz" },
         { label: "AI Assistant", icon: Bot, path: "/ai-assistant" },
         { label: "Leaderboard", icon: Trophy, path: "/leaderboard" },
-        { label: "Settings", icon: Settings, path: "/setting" },
+        { label: "Settings", icon: Settings, path: "/settings" },
       ];
     default:
       return [];

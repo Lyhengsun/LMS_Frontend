@@ -16,9 +16,7 @@ import confetti from "canvas-confetti";
 import {
   ArrowLeft,
   BookOpen,
-  CheckCircle,
   Clock,
-  MessageCircle,
   Play,
   PlayCircle,
   Plus,

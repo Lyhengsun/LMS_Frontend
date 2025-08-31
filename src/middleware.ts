@@ -53,6 +53,6 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // Match all routes except the ones that start with /login and api and the static folder
-    "/((?!api|_next/static|_next/image|images|image|favicon.ico|login|register|verify-otp).+)",
+    "/((?!api|_next/static|_next/image|images|image|favicon.ico|login|register|verify-otp|forgot-password).+)",
   ],
 };

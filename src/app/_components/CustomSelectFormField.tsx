@@ -40,11 +40,11 @@ const CustomSelectFormField = ({
           <FormLabel>{label}</FormLabel>
           <Select onValueChange={field.onChange} defaultValue={field.value}>
             <FormControl>
-              <SelectTrigger>
-                <SelectValue placeholder={placeholder} />
+              <SelectTrigger className="w-full">
+                <SelectValue  placeholder={placeholder} />
               </SelectTrigger>
             </FormControl>
-            <SelectContent>
+            <SelectContent >
               {options.map((o, index) => (
                 <SelectItem key={index} value={o.value}>{o.label}</SelectItem>
               ))}

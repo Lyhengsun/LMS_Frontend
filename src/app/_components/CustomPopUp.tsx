@@ -6,9 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { format } from "date-fns";
-import React, { Children } from "react";
-import StatusBadgeComponent from "../admin/user-management/_components/StatusBadgeComponent";
+import React from "react";
 
 const CustomPopUp = ({
   children,

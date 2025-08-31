@@ -11,96 +11,46 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import {
-  BookOpen,
-  Clock,
-  Edit,
-  Eye,
-  Plus,
-  Search,
-  Star,
-  Trash2,
-  Users,
-} from "lucide-react";
+import { Plus, Search } from "lucide-react";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Form } from "@/components/ui/form";
+import React, { useEffect, useState } from "react";
 import z from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import CourseCardComponent from "@/src/app/(student)/my-course/_components/CourseCardComponent";
+import Course from "@/src/type/Course";
+import { getCourseByAuthorAction } from "@/src/action/courseAction";
+import { toast } from "sonner";
+import CreateCourseFormComponent from "./CreateCourseFormComponent";
+import Category from "@/src/type/Category";
+import CreateCourseContentFormComponent from "../edit-course/[courseId]/_components/CreateCourseContentFormComponent";
 
-const createCourseFormSchema = z.object({
-  courseName: z.string().trim(),
-  courseDescription: z.string().trim(),
-  level: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCE"]),
-  maxPoints: z.number(),
-});
-
-const InstructorCoursePageComponent = () => {
+const InstructorCoursePageComponent = ({
+  categories,
+}: {
+  categories: Category[];
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const router = useRouter();
-  const form = useForm<z.infer<typeof createCourseFormSchema>>({
-    resolver: zodResolver(createCourseFormSchema),
-  });
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [page, setPage] = useState(1);
 
-  const courses = [
-    {
-      id: 1,
-      title: "React Development Masterclass",
-      description:
-        "Complete guide to React development with hooks and modern patterns",
-      instructor: "guy",
-      students: 45,
-      lessons: [{}, {}],
-      isPublic: true,
-      duration: "40",
-      createdAt: "2024-01-15",
-      thumbnail:
-        "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400&h=225&fit=crop",
-    },
-    {
-      id: 2,
-      title: "JavaScript Fundamentals",
-      description: "Learn JavaScript from basics to advanced concepts",
-      instructor: "guy",
-      students: 32,
-      lessons: [{}, {}],
-      isPublic: true,
-      duration: "40",
-      createdAt: "2024-02-01",
-      thumbnail:
-        "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400&h=225&fit=crop",
-    },
-    {
-      id: 3,
-      title: "Web Development Bootcamp",
-      description: "Full-stack web development course",
-      instructor: "guy",
-      students: 28,
-      lessons: [{}, {}],
-      isPublic: false,
-      duration: "40",
-      createdAt: "2024-02-15",
-      thumbnail:
-        "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400&h=225&fit=crop",
-    },
-  ];
+  useEffect(() => {
+    const loadCourses = async () => {
+      const data = await getCourseByAuthorAction(page, 12);
+      console.log("data : ", data);
 
-  const handleViewCourse = (courseId: number) => {
-    router.push(`/instructor/course/view-course/${courseId}`);
-  };
+      if (data.success) {
+        setCourses(data.data?.items!);
+      } else {
+        toast.error("Failed to load courses for current author");
+      }
+    };
 
-  const handleEditCourse = (courseId: number) => {
-    router.push(`/instructor/course/edit-course/${courseId}`);
-  };
+    if (!isCreateDialogOpen) {
+      loadCourses();
+    }
+  }, [page, isCreateDialogOpen]);
 
-  const filteredCourses = courses.filter(
-    (course) =>
-      course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  console.log("Courses : ", courses);
 
   return (
     <div className="flex-1 flex flex-col">
@@ -111,29 +61,35 @@ const InstructorCoursePageComponent = () => {
             <h1 className="text-2xl font-bold text-gray-900">Manage Courses</h1>
             <p className="text-gray-600 mt-1">Create and manage your courses</p>
           </div>
+
+          {/* Create Course Button */}
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="w-4 h-4 text-white" />{" "}
+                <span>Create Course</span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>
+                  <span>Create New Course</span>
+                </DialogTitle>
+              </DialogHeader>
+              <CreateCourseFormComponent
+                categories={categories}
+                onOpenChange={setIsCreateDialogOpen}
+              />
+            </DialogContent>
+          </Dialog>
         </div>
       </header>
 
-      <main className="flex-1 p-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Create Course Button */}
-          <div className="mb-8 flex justify-end">
-            <Dialog
-              open={isCreateDialogOpen}
-              onOpenChange={setIsCreateDialogOpen}
-            >
-              <DialogTrigger asChild></DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Create New Course</DialogTitle>
-                </DialogHeader>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit}></form>
-                </Form>
-              </DialogContent>
-            </Dialog>
-          </div>
-
+      <main className="flex-1">
+        <div className="container mx-auto px-4 py-8">
           {/* Search and Filter */}
           <div className="mb-6">
             <div className="flex items-center space-x-4">
@@ -150,87 +106,14 @@ const InstructorCoursePageComponent = () => {
           </div>
 
           {/* Courses Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCourses.map((course) => (
-              <div key={course.id}>
-                <img
-                  src={course.thumbnail}
-                  alt={course.title}
-                  className="w-full h-36 object-cover rounded-t-lg"
-                />
-                <Card
-                  key={course.id}
-                  className="hover:shadow-lg transition-shadow rounded-t-none pt-3"
-                >
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 flex-col">
-                        <div className="flex-1 flex justify-between items-center mb-2">
-                          <CardTitle className="text-lg line-clamp-1">
-                            {course.title}
-                          </CardTitle>
-                          <Badge
-                            className={
-                              course.isPublic
-                                ? "bg-green-100 text-green-800"
-                                : "bg-yellow-100 text-yellow-800"
-                            }
-                          >
-                            {course.isPublic ? "approved" : "pending"}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-gray-600 mb-3 h-10">
-                          {course.description}
-                        </p>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between text-sm text-gray-600">
-                        <div className="flex items-center space-x-1">
-                          <Users className="w-4 h-4" />
-                          <span>{course.students} students</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <BookOpen className="w-4 h-4" />
-                          <span>{course.lessons.length} lessons</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Clock className="w-4 h-4" />
-                          <span>{course.duration} minutes</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-start space-x-3">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleViewCourse(course.id)}
-                        >
-                          <Eye className="w-4 h-4 mr-1" />
-                          View
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditCourse(course.id)}
-                        >
-                          <Edit className="w-4 h-4 mr-1" />
-                          Edit
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-red-600 hover:text-red-800"
-                        >
-                          <Trash2 className="w-4 h-4 mr-1" />
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {courses.map((course) => (
+              <CourseCardComponent
+                key={course.id}
+                course={course}
+                role="instructor"
+                handleStartLearning={() => {}}
+              />
             ))}
           </div>
         </div>

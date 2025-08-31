@@ -1,64 +1,34 @@
 "use client";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CourseCompletionConfetti } from "@/src/components/CourseCompletionConfetti";
-import { useCourseProgressStore } from "@/src/components/CourseProgress";
-import { EnhancedVideoPlayer } from "@/src/components/EnhancedVideoPlayer";
-import { LessonCompletionCelebration } from "@/src/components/LessonCompletionCelebration";
-import { LessonResources } from "@/src/components/LessonResources";
-import { VideoComments } from "@/src/components/VideoComments";
-import { useVideoProgress } from "@/src/lib/hooks/useVideoProgress";
-import Course, { Lesson } from "@/src/type/Course";
-import confetti from "canvas-confetti";
 import {
-  ArrowLeft,
-  BookOpen,
-  CheckCircle,
-  Clock,
-  MessageCircle,
-  Play,
-  PlayCircle,
-  Plus,
-} from "lucide-react";
+  Dialog,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogContent,
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EnhancedVideoPlayer } from "@/src/components/EnhancedVideoPlayer";
+import { LessonResources } from "@/src/components/LessonResources";
+import Course, { Lesson } from "@/src/type/Course";
+import { ArrowLeft, BookOpen, Clock, PlayCircle, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import CreateCourseContentFormComponent from "./CreateCourseContentFormComponent";
 
 const EditCourseDetailPageComponent = ({
   selectedCourse,
 }: {
   selectedCourse: Course;
 }) => {
-  const { startCourse, completeLesson, getCourseProgress } =
-    useCourseProgressStore();
-  const [selectedVideo, setSelectedVideo] = useState<Lesson | null>(
-    selectedCourse.lessons[0]
+  const [isAddLessonDialogOpen, setIsAddLessonDialogOpen] = useState(false);
+  const sortedLessons = selectedCourse.lessons.sort(
+    (a, b) => a.index - b.index
   );
-  const courseProgress = getCourseProgress(selectedCourse.id);
+  const [selectedContent, setSelectedContent] = useState<Lesson | null>(
+    sortedLessons.length > 0 ? sortedLessons[0] : null
+  );
   const router = useRouter();
-
-  const videoProgress = useVideoProgress(
-    selectedCourse?.id || 0,
-    selectedVideo?.id || 0
-  );
-
-  const handleVideoProgress = (
-    courseId: number,
-    lessonId: number,
-    currentTime: any,
-    duration: any
-  ) => {
-    if (
-      selectedCourse &&
-      selectedVideo &&
-      courseId === selectedCourse.id &&
-      lessonId === selectedVideo?.id
-    ) {
-      videoProgress.updateProgress(currentTime, duration);
-    }
-  };
 
   return (
     <div className="flex flex-1">
@@ -78,58 +48,57 @@ const EditCourseDetailPageComponent = ({
             </Button>
             <div>
               <h1 className="text-lg font-semibold">{selectedCourse.title}</h1>
-              <p className="text-sm text-gray-600">{selectedVideo?.title}</p>
+              <p className="text-sm text-gray-600">{selectedContent?.title}</p>
             </div>
           </div>
         </div>
 
         {/* Video Player */}
         <div className="p-6">
-          <EnhancedVideoPlayer
-            src={selectedVideo?.videoUrl!}
-            title={selectedVideo?.title}
-            onProgress={(currentTime, duration) => {
-              handleVideoProgress(
-                selectedCourse.id,
-                selectedVideo?.id!,
-                currentTime,
-                duration
-              );
-            }}
-            onNext={() => {
-              const currentIndex = selectedCourse.lessons.findIndex(
-                (l: any) => l.id === selectedVideo?.id
-              );
-              if (currentIndex < selectedCourse.lessons.length - 1) {
-                setSelectedVideo(selectedCourse.lessons[currentIndex + 1]);
+          {selectedContent != null ? (
+            <EnhancedVideoPlayer
+              src={`${
+                process.env.BASE_API_URL
+              }/files/video/${selectedContent?.videoUrl!}`}
+              title={selectedContent?.title}
+              onProgress={(currentTime, duration) => {}}
+              onNext={() => {
+                const currentIndex = selectedCourse.lessons.findIndex(
+                  (l: any) => l.id === selectedContent?.id
+                );
+                if (currentIndex < selectedCourse.lessons.length - 1) {
+                  setSelectedContent(selectedCourse.lessons[currentIndex + 1]);
+                }
+              }}
+              onPrevious={() => {
+                const currentIndex = selectedCourse.lessons.findIndex(
+                  (l: any) => l.id === selectedContent?.id
+                );
+                if (currentIndex > 0) {
+                  setSelectedContent(selectedCourse.lessons[currentIndex - 1]);
+                }
+              }}
+              hasNext={
+                selectedCourse.lessons.findIndex(
+                  (l: any) => l.id === selectedContent?.id
+                ) <
+                selectedCourse.lessons.length - 1
               }
-            }}
-            onPrevious={() => {
-              const currentIndex = selectedCourse.lessons.findIndex(
-                (l: any) => l.id === selectedVideo?.id
-              );
-              if (currentIndex > 0) {
-                setSelectedVideo(selectedCourse.lessons[currentIndex - 1]);
+              hasPrevious={
+                selectedCourse.lessons.findIndex(
+                  (l: any) => l.id === selectedContent?.id
+                ) > 0
               }
-            }}
-            hasNext={
-              selectedCourse.lessons.findIndex(
-                (l: any) => l.id === selectedVideo?.id
-              ) <
-              selectedCourse.lessons.length - 1
-            }
-            hasPrevious={
-              selectedCourse.lessons.findIndex(
-                (l: any) => l.id === selectedVideo?.id
-              ) > 0
-            }
-          />
+            />
+          ) : (
+            <div className="relative bg-black aspect-video rounded-lg overflow-hidden group"></div>
+          )}
         </div>
 
         {/* Course Content Tabs */}
         <div className="flex-1 bg-white">
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-gray-50 rounded-none border-b">
+            <TabsList className="grid w-full grid-cols-1 bg-gray-50 rounded-none border-b">
               <TabsTrigger
                 value="overview"
                 className="flex items-center space-x-2"
@@ -137,29 +106,32 @@ const EditCourseDetailPageComponent = ({
                 <BookOpen className="w-4 h-4" />
                 <span>Overview</span>
               </TabsTrigger>
-              <TabsTrigger
+              {/* <TabsTrigger
                 value="resources"
                 className="flex items-center space-x-2"
               >
                 <Play className="w-4 h-4" />
                 <span>Resources</span>
-              </TabsTrigger>
+              </TabsTrigger> */}
             </TabsList>
 
             <TabsContent value="overview" className="p-6 space-y-6">
               <div>
                 <h2 className="text-xl font-bold mb-4">
-                  {selectedVideo?.title}
+                  {selectedContent?.title}
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="md:col-span-3">
                     <div className="prose prose-sm max-w-none">
                       <p className="text-gray-700 leading-relaxed">
+                        {selectedCourse.description}
+                      </p>
+                      {/* <p className="text-gray-700 leading-relaxed">
                         In this lesson, you'll learn the fundamentals of{" "}
-                        {selectedVideo?.title.toLowerCase()}. This comprehensive
-                        tutorial covers essential concepts, practical examples,
-                        and best practices that will help you master this
-                        important topic.
+                        {selectedContent?.title.toLowerCase()}. This
+                        comprehensive tutorial covers essential concepts,
+                        practical examples, and best practices that will help
+                        you master this important topic.
                       </p>
                       <h4 className="font-semibold mt-4 mb-2">
                         What you'll learn:
@@ -169,7 +141,7 @@ const EditCourseDetailPageComponent = ({
                         <li>Practical implementation techniques</li>
                         <li>Common patterns and best practices</li>
                         <li>Real-world examples and use cases</li>
-                      </ul>
+                      </ul> */}
                     </div>
                   </div>
                 </div>
@@ -179,7 +151,7 @@ const EditCourseDetailPageComponent = ({
             <TabsContent value="resources" className="p-6">
               <LessonResources
                 courseId={selectedCourse.id}
-                lessonId={selectedVideo?.id!}
+                lessonId={selectedContent?.id!}
               />
             </TabsContent>
           </Tabs>
@@ -190,18 +162,11 @@ const EditCourseDetailPageComponent = ({
       <div className="w-80 bg-white border-l flex flex-col">
         <div className="p-4 border-b">
           <h3 className="font-semibold">Course Content</h3>
-          <p className="text-sm text-gray-600 mt-1">
-            {courseProgress.completedLessons.length} of{" "}
-            {selectedCourse.lessons.length} lessons completed
-          </p>
         </div>
         <div className="flex-1 overflow-y-auto">
           <div className="p-2">
-            {selectedCourse.lessons.map((lesson: any, index: number) => {
-              const isCompleted = courseProgress.completedLessons.includes(
-                lesson.id
-              );
-              const isCurrent = lesson.id === selectedVideo?.id;
+            {sortedLessons.map((lesson: any, index: number) => {
+              const isCurrent = lesson.id === selectedContent?.id;
 
               return (
                 <div
@@ -211,7 +176,7 @@ const EditCourseDetailPageComponent = ({
                       ? "bg-purple-50 border border-purple-200"
                       : "hover:bg-gray-50"
                   }`}
-                  onClick={() => setSelectedVideo(lesson)}
+                  onClick={() => setSelectedContent(lesson)}
                 >
                   <div className="flex items-start space-x-3">
                     <div
@@ -223,23 +188,25 @@ const EditCourseDetailPageComponent = ({
                     >
                       {index + 1}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p
-                        className={`text-sm font-medium ${
-                          isCurrent ? "text-purple-700" : "text-gray-900"
-                        }`}
-                      >
-                        {lesson.title}
-                      </p>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <Clock className="w-3 h-3 text-gray-400" />
-                        <span className="text-xs text-gray-500">
-                          {lesson.duration}
-                        </span>
-                        {isCurrent && (
-                          <PlayCircle className="w-3 h-3 text-purple-500" />
-                        )}
+                    <div className="flex-1 min-w-0 flex justify-between items-center">
+                      <div>
+                        <p
+                          className={`text-sm font-medium line-clamp-1 ${
+                            isCurrent ? "text-purple-700" : "text-gray-900"
+                          }`}
+                        >
+                          {lesson.title}
+                        </p>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <Clock className="w-3 h-3 text-gray-400" />
+                          <span className="text-xs text-gray-500">
+                            {lesson.duration} minutes
+                          </span>
+                        </div>
                       </div>
+                      {isCurrent && (
+                        <PlayCircle className="w-5 h-5 text-purple-500" />
+                      )}
                     </div>
                   </div>
                 </div>
@@ -247,10 +214,27 @@ const EditCourseDetailPageComponent = ({
             })}
           </div>
           <div className="p-4 border-t border-gray-200">
-            <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
-              <Plus className="w-5 h-5" />
-              <span>Add New Lesson</span>
-            </button>
+            <Dialog
+              open={isAddLessonDialogOpen}
+              onOpenChange={setIsAddLessonDialogOpen}
+            >
+              <DialogTrigger asChild>
+                <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium text-md py-6 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+                  <Plus className="w-5 h-5" />
+                  <span>Add New Lesson</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add a new lesson</DialogTitle>
+                </DialogHeader>
+                <CreateCourseContentFormComponent
+                  courseId={selectedCourse.id}
+                  courseContentIndex={sortedLessons.length + 1}
+                  onOpenChange={setIsAddLessonDialogOpen}
+                />
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>

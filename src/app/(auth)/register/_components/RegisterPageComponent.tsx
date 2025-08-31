@@ -52,13 +52,15 @@ export default function RegisterPageComponent() {
       icon={<GraduationCap className="w-6 h-6 text-white" />}
       footer={
         <div className="text-center">
-          <p className="text-sm text-gray-600">Already have an account?</p>
-          <Link href="/">
-            <Button variant="outline" className="mt-2 bg-transparent">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Login
-            </Button>
-          </Link>
+          <p className="text-sm text-gray-600 space-x-2">
+            <span>Already have an account?</span>
+            <Link
+              href="/login"
+              className="text-blue-400 underline hover:text-blue-300"
+            >
+              Sign in here
+            </Link>
+          </p>
         </div>
       }
     >

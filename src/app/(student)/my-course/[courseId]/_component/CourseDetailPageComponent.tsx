@@ -35,7 +35,7 @@ const CourseDetailPageComponent = ({
   );
   const { startCourse, completeLesson, getCourseProgress } =
     useCourseProgressStore();
-  const [selectedVideo, setSelectedVideo] = useState<Lesson | null>(
+  const [selectedContent, setSelectedContent] = useState<Lesson | null>(
     sortedLessons[0]
   );
   const courseProgress = getCourseProgress(selectedCourse.id);
@@ -45,11 +45,11 @@ const CourseDetailPageComponent = ({
 
   const videoProgress = useVideoProgress(
     selectedCourse?.id || 0,
-    selectedVideo?.id || 0
+    selectedContent?.id || 0
   );
 
   const handleVideoClose = () => {
-    setSelectedVideo(null);
+    setSelectedContent(null);
     // setSelectedCourse(null);
   };
 
@@ -61,9 +61,9 @@ const CourseDetailPageComponent = ({
   ) => {
     if (
       selectedCourse &&
-      selectedVideo &&
+      selectedContent &&
       courseId === selectedCourse.id &&
-      lessonId === selectedVideo?.id
+      lessonId === selectedContent?.id
     ) {
       videoProgress.updateProgress(currentTime, duration);
     }
@@ -113,7 +113,7 @@ const CourseDetailPageComponent = ({
             </Button>
             <div>
               <h1 className="text-lg font-semibold">{selectedCourse.title}</h1>
-              <p className="text-sm text-gray-600">{selectedVideo?.title}</p>
+              <p className="text-sm text-gray-600">{selectedContent?.title}</p>
             </div>
           </div>
           <div className="flex items-center space-x-4">
@@ -130,42 +130,47 @@ const CourseDetailPageComponent = ({
         {/* Video Player */}
         <div className="p-6">
           <EnhancedVideoPlayer
-            src={`${process.env.BASE_API_URL}/files/video/${selectedVideo?.videoUrl!}`}
-            title={selectedVideo?.title}
+            src={`${
+              process.env.BASE_API_URL
+            }/files/video/${selectedContent?.videoUrl!}`}
+            title={selectedContent?.title}
             onProgress={(currentTime, duration) => {
               handleVideoProgress(
                 selectedCourse.id,
-                selectedVideo?.id!,
+                selectedContent?.id!,
                 currentTime,
                 duration
               );
             }}
             onEnded={() =>
-              handleLessonComplete(selectedCourse.id, selectedVideo?.id!)
+              handleLessonComplete(selectedCourse.id, selectedContent?.id!)
             }
             onNext={() => {
               const currentIndex = sortedLessons.findIndex(
-                (l: any) => l.id === selectedVideo?.id
+                (l: any) => l.id === selectedContent?.id
               );
               if (currentIndex < sortedLessons.length - 1) {
-                setSelectedVideo(sortedLessons[currentIndex + 1]);
+                setSelectedContent(sortedLessons[currentIndex + 1]);
               }
             }}
             onPrevious={() => {
               const currentIndex = sortedLessons.findIndex(
-                (l: any) => l.id === selectedVideo?.id
+                (l: any) => l.id === selectedContent?.id
               );
               if (currentIndex > 0) {
-                setSelectedVideo(sortedLessons[currentIndex - 1]);
+                setSelectedContent(sortedLessons[currentIndex - 1]);
               }
             }}
             hasNext={
-              sortedLessons.findIndex((l: any) => l.id === selectedVideo?.id) <
+              sortedLessons.findIndex(
+                (l: any) => l.id === selectedContent?.id
+              ) <
               sortedLessons.length - 1
             }
             hasPrevious={
-              sortedLessons.findIndex((l: any) => l.id === selectedVideo?.id) >
-              0
+              sortedLessons.findIndex(
+                (l: any) => l.id === selectedContent?.id
+              ) > 0
             }
           />
         </div>
@@ -202,21 +207,21 @@ const CourseDetailPageComponent = ({
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="md:col-span-2">
                     <div className="prose prose-sm max-w-none">
-                <h2 className="text-xl font-bold">
-                  {selectedVideo?.title}
-                </h2>
+                      <h2 className="text-xl font-bold">
+                        {selectedContent?.title}
+                      </h2>
                       <p className="text-gray-700 leading-relaxed">
                         {selectedCourse.description}
                       </p>
-                      <h4 className="font-semibold mt-4 mb-2">
+                      {/* <h4 className="font-semibold mt-4 mb-2">
                         What you'll learn:
-                      </h4>
-                      <ul className="list-disc list-inside space-y-1 text-gray-600">
+                      </h4> */}
+                      {/* <ul className="list-disc list-inside space-y-1 text-gray-600">
                         <li>Core concepts and principles</li>
                         <li>Practical implementation techniques</li>
                         <li>Common patterns and best practices</li>
                         <li>Real-world examples and use cases</li>
-                      </ul>
+                      </ul> */}
                     </div>
                   </div>
                   <div className="space-y-4">
@@ -225,7 +230,7 @@ const CourseDetailPageComponent = ({
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Duration:</span>
-                          <span>{selectedVideo?.duration} minutes</span>
+                          <span>{selectedContent?.duration} minutes</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Progress:</span>
@@ -305,7 +310,7 @@ const CourseDetailPageComponent = ({
               const isCompleted = courseProgress.completedLessons.includes(
                 lesson.id
               );
-              const isCurrent = lesson.id === selectedVideo?.id;
+              const isCurrent = lesson.id === selectedContent?.id;
 
               return (
                 <div
@@ -315,7 +320,7 @@ const CourseDetailPageComponent = ({
                       ? "bg-purple-50 border border-purple-200"
                       : "hover:bg-gray-50"
                   }`}
-                  onClick={() => setSelectedVideo(lesson)}
+                  onClick={() => setSelectedContent(lesson)}
                 >
                   <div className="flex items-start space-x-3">
                     <div
@@ -336,7 +341,7 @@ const CourseDetailPageComponent = ({
                     <div className="flex-1 min-w-0 flex justify-between items-center">
                       <div>
                         <p
-                          className={`text-sm font-medium ${
+                          className={`text-sm font-medium line-clamp-1 ${
                             isCurrent ? "text-purple-700" : "text-gray-900"
                           }`}
                         >
@@ -349,9 +354,9 @@ const CourseDetailPageComponent = ({
                           </span>
                         </div>
                       </div>
-                        {isCurrent && (
-                          <PlayCircle className="w-5 h-5 text-purple-500" />
-                        )}
+                      {isCurrent && (
+                        <PlayCircle className="w-5 h-5 text-purple-500" />
+                      )}
                     </div>
                   </div>
                 </div>
@@ -363,7 +368,7 @@ const CourseDetailPageComponent = ({
 
       <LessonCompletionCelebration
         show={showCelebration}
-        lessonTitle={selectedVideo?.title!}
+        lessonTitle={selectedContent?.title!}
         onContinue={() => setShowCelebration(false)}
       />
 

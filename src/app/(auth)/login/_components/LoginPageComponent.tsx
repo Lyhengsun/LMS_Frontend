@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { loginSchema } from "@/src/lib/zod/authSchema";
 import { GraduationCap, LogIn, UserPlus } from "lucide-react";
 import Link from "next/link";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
@@ -16,6 +16,10 @@ import CustomFormField from "@/src/app/_components/CustomFormField";
 import { loginAction } from "@/src/action/authAction";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
+import { Input } from "@/components/ui/input";
 
 const LoginPageComponent = () => {
   const router = useRouter();
@@ -27,7 +31,7 @@ const LoginPageComponent = () => {
     },
   });
 
-  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = React.useState(false);
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
 
   async function onSubmit(values: z.infer<typeof loginSchema>) {
     // Do something with the form values.
@@ -44,7 +48,8 @@ const LoginPageComponent = () => {
       form.reset();
     } else {
       toast.warning("Login Failed", {
-        description: "Please make sure your account is verified and approved by the admin"
+        description:
+          "Please make sure your account is verified and approved by the admin",
       });
     }
   }
@@ -59,24 +64,14 @@ const LoginPageComponent = () => {
         footer={
           <>
             <div className="text-center">
-              <p className="text-sm text-gray-600">Don't have an account?</p>
-              <Link href="/register">
-                <Button variant="outline" className="mt-2 bg-transparent">
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Register
-                </Button>
-              </Link>
-            </div>
-
-            <div className="mt-6 text-center">
-              <p className="text-xs text-gray-500">
-                <strong>Demo Credentials:</strong>
-                <br />
-                Student: student@test.com / password
-                <br />
-                Instructor: instructor@test.com / password
-                <br />
-                Admin: admin@test.com / password
+              <p className="text-sm text-gray-600 space-x-2">
+                <span>Don't have an account?</span>
+                <Link
+                  href="/register"
+                  className="text-blue-400 underline hover:text-blue-300"
+                >
+                  Sign up now!
+                </Link>
               </p>
             </div>
           </>
@@ -101,13 +96,17 @@ const LoginPageComponent = () => {
               />
 
               <div className="flex items-center justify-between">
-                <button
-                  type="button"
-                  onClick={() => setIsForgotPasswordOpen(true)}
-                  className="text-sm text-purple-600 hover:text-purple-800 underline"
+                <div
+                onClick={() => setIsForgotPasswordOpen(true)}
+                  className="text-sm text-blue-400 hover:bg-transparent underline p-0 font-normal hover:text-blue-300 bg-transparent cursor-pointer"
                 >
                   Forgot password?
-                </button>
+                </div>
+
+                <div className="flex items-center gap-2 cursor-pointer">
+                  <Checkbox id="remember" className="cursor-pointer"/>
+                  <Label htmlFor="remember" className="cursor-pointer text-gray-700">Remember me</Label>
+                </div>
               </div>
 
               <Button
@@ -123,11 +122,18 @@ const LoginPageComponent = () => {
         </>
       </AuthFormLayoutComponent>
 
-      {/* Forgot Password Dialog */}
-      <ForgotPasswordDialog
-        open={isForgotPasswordOpen}
-        onOpenChange={setIsForgotPasswordOpen}
-      />
+      <Dialog open={isForgotPasswordOpen} onOpenChange={setIsForgotPasswordOpen}>
+          <DialogContent>
+            <DialogTitle>
+              Forgot password
+            </DialogTitle>
+            <DialogDescription>
+              Enter the email that you forgot the password for
+            </DialogDescription>
+            <Label htmlFor="forgot-email">Email</Label>
+            <Input id="forgot-email" />
+          </DialogContent>
+      </Dialog>
     </>
   );
 };

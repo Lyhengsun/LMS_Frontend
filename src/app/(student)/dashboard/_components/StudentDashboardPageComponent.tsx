@@ -127,12 +127,12 @@ const StudentDashboardPageComponent = () => {
                 Welcome back, Alex! Ready to continue your learning journey?
               </p>
             </div>
-            <div className="flex items-center space-x-4">
+            {/* <div className="flex items-center space-x-4">
               <div className="relative">
                 <Bell className="w-6 h-6 text-gray-400 cursor-pointer hover:text-gray-600" />
                 <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
               </div>
-            </div>
+            </div> */}
           </div>
         </header>
 

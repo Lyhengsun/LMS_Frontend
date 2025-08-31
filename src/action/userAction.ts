@@ -73,6 +73,6 @@ export const getCurrentUserAction = async () => {
     const data = await getCurrentUserService();
     return { success: true, data: data};
   } catch (error) {
-    return { success: false, message: error.message };
+    return { success: false, message: error};
   }
 };

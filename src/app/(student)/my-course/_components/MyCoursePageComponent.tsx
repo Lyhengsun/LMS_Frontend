@@ -16,6 +16,7 @@ import {
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Course from "@/src/type/Course";
+import CourseCardComponent from "./CourseCardComponent";
 
 const MyCoursePageComponent = ({ courses }: { courses: Course[] }) => {
   //   const navigate = useNavigate();
@@ -34,14 +35,6 @@ const MyCoursePageComponent = ({ courses }: { courses: Course[] }) => {
     selectedVideo?.id || 0
   );
 
-  const categories = [
-    "all",
-    "development",
-    "data-science",
-    "design",
-    "marketing",
-  ];
-
   const handleStartLearning = (courseId: number) => {
     const course = courses.find((c) => c.id === courseId);
     if (course) {
@@ -57,6 +50,30 @@ const MyCoursePageComponent = ({ courses }: { courses: Course[] }) => {
       router.push(`/my-course/${courseId}`);
     }
   };
+
+  const categories = [
+    "all",
+    "development",
+    "data-science",
+    "design",
+    "marketing",
+  ];
+
+  // const handleStartLearning = (courseId: number) => {
+  //   const course = courses.find((c) => c.id === courseId);
+  //   if (course) {
+  //     const courseProgress = getCourseProgress(courseId);
+  //     const nextLesson =
+  //       course.lessons.find(
+  //         (lesson) => !courseProgress.completedLessons.includes(lesson.id)
+  //       ) || course.lessons[0];
+
+  //     setSelectedCourse(course);
+  //     setSelectedVideo(nextLesson);
+  //     startCourse(courseId, course.lessons.length);
+  //     router.push(`/my-course/${courseId}`);
+  //   }
+  // };
 
   const filteredCourses = courses.filter((course) => {
     const matchesSearch =
@@ -112,77 +129,12 @@ const MyCoursePageComponent = ({ courses }: { courses: Course[] }) => {
         {/* Course Cards - Udemy Style */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredCourses.map((course) => {
-            const courseProgress = getCourseProgress(course.id);
             return (
-              <div key={course.id}>
-                <div className="relative">
-                  <img
-                    src={`${process.env.BASE_API_URL}/files/preview-file/${course.thumbnail}`}
-                    alt={course.title}
-                    className="w-full h-36 object-cover rounded-t-lg"
-                  />
-                  {courseProgress.progressPercentage > 0 && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-2">
-                      <div className="flex items-center justify-between text-white text-xs mb-1">
-                        <span>
-                          {courseProgress.progressPercentage}% complete
-                        </span>
-                        <span>{courseProgress.completedLessons.length}/</span>
-                      </div>
-                      <Progress
-                        value={courseProgress.progressPercentage}
-                        className="h-1 bg-gray-600"
-                      />
-                    </div>
-                  )}
-                </div>
-                <Card
-                  key={course.id}
-                  className="hover:shadow-lg transition-shadow rounded-t-none pt-3"
-                >
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="text-lg mb-2">
-                          {course.title}
-                        </CardTitle>
-                        <p className="text-sm text-gray-600 mb-3 h-10">
-                          {course.description}
-                        </p>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between text-sm text-gray-600">
-                        <div className="flex items-center space-x-1">
-                          <Users className="w-4 h-4" />
-                          <span>{course.students} students</span>
-                        </div>
-
-                        <div className="flex items-center space-x-1">
-                          <BookOpen className="w-4 h-4" />
-                          <span>{course.lessons.length} lessons</span>
-                        </div>
-
-                        <div className="flex items-center space-x-1">
-                          <Clock className="w-4 h-4" />
-                          <span>{course.duration} minutes</span>
-                        </div>
-                      </div>
-                    </div>
-                    <Button
-                      onClick={() => handleStartLearning(course.id)}
-                      className="mt-2 w-full bg-purple-600 hover:bg-purple-700 text-white text-sm py-2"
-                    >
-                      <PlayCircle className="w-4 h-4 mr-2" />
-                      {courseProgress.progressPercentage > 0
-                        ? "Continue"
-                        : "Start"}
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
+              <CourseCardComponent
+                key={course.id}
+                course={course}
+                handleStartLearning={handleStartLearning}
+              />
             );
           })}
         </div>
