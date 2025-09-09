@@ -6,13 +6,13 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install production dependencies
-RUN yarn install
+RUN npm install
 
 # Copy the rest of the application files
 COPY . .
 
 # Build the application
-RUN yarn build
+RUN npm run build
 
 ### Run stage :This stage creates a lightweight image containing only the files needed to run the application.
 FROM node:22.12.0-bullseye-slim AS runner
