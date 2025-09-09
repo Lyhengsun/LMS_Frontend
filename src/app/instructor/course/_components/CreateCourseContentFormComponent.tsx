@@ -13,11 +13,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
 
-type CreateCourseContentFormValues = {
-  courseContentName: string;
-  durationMinutes: number;
-};
-
 const CreateCourseContentFormComponent = ({
   courseId,
   courseContentIndex,
@@ -39,7 +34,7 @@ const CreateCourseContentFormComponent = ({
     resolver: zodResolver(createCourseContentSchema),
     defaultValues: {
       courseContentName: "",
-      durationMinutes: 1,
+      durationMinutes: "1",
     },
   });
 

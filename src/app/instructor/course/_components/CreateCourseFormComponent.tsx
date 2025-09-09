@@ -56,7 +56,7 @@ const CreateCourseFormComponent = ({
     defaultValues: {
       courseName: "",
       courseDescription: "",
-      maxPoints: 10,
+      maxPoints: "10" 
     },
   });
 
@@ -200,8 +200,8 @@ const CreateCourseFormComponent = ({
 
           <CustomFormField
             control={form.control}
-            inputType="number"
             fieldName="maxPoints"
+            inputType="number"
             label="Max Points"
             placeholder="Max Points"
           />
