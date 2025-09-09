@@ -25,7 +25,7 @@ COPY --from=builder /app/.next/static ./.next/static
 # Expose the Next.js default port
 EXPOSE 3000
 
-ENV AUTH_URL=https://www.learningsite.com
+ENV AUTH_URL=https://www.learningsite.site
 
 ENV SECURE=true
 
