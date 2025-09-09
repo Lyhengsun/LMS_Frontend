@@ -6,9 +6,9 @@ const StudentLayout = ({ children }: { children: React.ReactNode }) => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
       <Sidebar role="instructor" />
       
-      <div className="flex-1 overflow-y-scroll h-dvh">{children}{" "}</div>
+      <div className="flex-1 overflow-y-scroll h-dvh no-scrollbar">{children}{" "}</div>
     </div>
   );
 };
 
-export default StudentLayout;
+export default StudentLayout  ;

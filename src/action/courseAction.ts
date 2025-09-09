@@ -1,9 +1,10 @@
 "use server";
 
-import z from "zod";
+import z, { success } from "zod";
 import {
   createCourseContentService,
   createCourseService,
+  deleteCourseByIdService,
   getCourseByAuthorService,
 } from "../service/course.service";
 import {
@@ -58,6 +59,20 @@ export const createCourseContentAction = async (
     return { success: false, message: courseContentData?.message };
   } catch (error) {
     // console.log("createCourseAction error : ", error);
+    return { success: false, message: error };
+  }
+};
+
+export const deleteCourseByIdAction = async (courseId: number) => {
+  try {
+    const courseDeletedData = await deleteCourseByIdService(courseId);
+    console.log("courseDeletedData : ", courseDeletedData);
+    if (courseDeletedData?.success) {
+      revalidateTag("authorCourse");
+      return { success: true, message: courseDeletedData.message };
+    }
+    return { success: false, message: courseDeletedData?.message };
+  } catch (error) {
     return { success: false, message: error };
   }
 };

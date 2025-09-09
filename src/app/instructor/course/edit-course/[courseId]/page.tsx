@@ -1,9 +1,8 @@
 import React from "react";
-import EditCourseDetailPageComponent from "./_components/EditCourseDetailPageComponent";
+import InstructorCourseDetailPageComponent from "../../_components/InstructorCourseDetailPageComponent";
 import Course from "@/src/type/Course";
 import { getAuthorCourseByIdService } from "@/src/service/course.service";
 import { redirect } from "next/navigation";
-import CourseDetailPageComponent from "@/src/app/(student)/my-course/[courseId]/_component/CourseDetailPageComponent";
 
 const EditCourseDetailPage = async ({
   params,
@@ -15,7 +14,7 @@ const EditCourseDetailPage = async ({
   if (course == undefined) {
     redirect("/instructor/course");
   }
-  return <EditCourseDetailPageComponent selectedCourse={course} />;
+  return <InstructorCourseDetailPageComponent selectedCourse={course} mode="edit"/>;
 };
 
 export default EditCourseDetailPage;

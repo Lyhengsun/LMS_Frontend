@@ -1,8 +1,5 @@
 "use client";
-import { Sidebar } from "@/src/components/Sidebar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -14,14 +11,16 @@ import { Input } from "@/components/ui/input";
 import { Plus, Search } from "lucide-react";
 
 import React, { useEffect, useState } from "react";
-import z from "zod";
 import CourseCardComponent from "@/src/app/(student)/my-course/_components/CourseCardComponent";
 import Course from "@/src/type/Course";
-import { getCourseByAuthorAction } from "@/src/action/courseAction";
+import {
+  deleteCourseByIdAction,
+  getCourseByAuthorAction,
+} from "@/src/action/courseAction";
 import { toast } from "sonner";
 import CreateCourseFormComponent from "./CreateCourseFormComponent";
 import Category from "@/src/type/Category";
-import CreateCourseContentFormComponent from "../edit-course/[courseId]/_components/CreateCourseContentFormComponent";
+import CustomPaginationOnClick from "@/src/app/_components/CustomPaginationOnClick";
 
 const InstructorCoursePageComponent = ({
   categories,
@@ -32,25 +31,38 @@ const InstructorCoursePageComponent = ({
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [courses, setCourses] = useState<Course[]>([]);
   const [page, setPage] = useState(1);
+  const [maxPage, setMaxPage] = useState(1);
+
+  const loadCourses = async () => {
+    const data = await getCourseByAuthorAction(page, 8);
+    console.log("data : ", data);
+
+    if (data.success) {
+      setCourses(data.data?.items!);
+      setMaxPage(data.data?.pagination.totalPages ?? 1);
+    } else {
+      toast.error("Failed to load courses for current author");
+    }
+  };
 
   useEffect(() => {
-    const loadCourses = async () => {
-      const data = await getCourseByAuthorAction(page, 12);
-      console.log("data : ", data);
-
-      if (data.success) {
-        setCourses(data.data?.items!);
-      } else {
-        toast.error("Failed to load courses for current author");
-      }
-    };
-
     if (!isCreateDialogOpen) {
       loadCourses();
     }
   }, [page, isCreateDialogOpen]);
 
-  console.log("Courses : ", courses);
+  const onDeleteClick = async (courseId: number) => {
+    const deletedCourseRes = await deleteCourseByIdAction(courseId);
+    console.log("deletedCourseRes : ", deletedCourseRes);
+    if (deletedCourseRes.success) {
+      loadCourses();
+      toast.success("Deleted Course successfully");
+    } else {
+      toast.error("Failed to delete the course", {
+        description: deletedCourseRes.message as string,
+      });
+    }
+  };
 
   return (
     <div className="flex-1 flex flex-col">
@@ -113,9 +125,27 @@ const InstructorCoursePageComponent = ({
                 course={course}
                 role="instructor"
                 handleStartLearning={() => {}}
+                onDeleteClick={() => onDeleteClick(course.id)}
               />
             ))}
           </div>
+          {
+            courses.length > 1 &&
+          <CustomPaginationOnClick
+            currentPage={page}
+            maxPage={maxPage}
+            nextOnClick={() => {
+              if (page < maxPage) {
+                setPage((p) => p + 1);
+              }
+            }}
+            previousOnClick={() => {
+              if (page > 1) {
+                setPage((p) => p - 1);
+              }
+            }}
+          />
+          }
         </div>
       </main>
     </div>

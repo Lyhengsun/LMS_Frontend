@@ -16,12 +16,15 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import CreateCourseContentFormComponent from "./CreateCourseContentFormComponent";
 
-const EditCourseDetailPageComponent = ({
+const InstructorCourseDetailPageComponent = ({
   selectedCourse,
+  mode = "view",
 }: {
   selectedCourse: Course;
+  mode?: "view" | "edit";
 }) => {
   const [isAddLessonDialogOpen, setIsAddLessonDialogOpen] = useState(false);
+  const [isSubmittingContent, setIsSubmittingContent] = useState(false);
   const sortedLessons = selectedCourse.lessons.sort(
     (a, b) => a.index - b.index
   );
@@ -33,7 +36,7 @@ const EditCourseDetailPageComponent = ({
   return (
     <div className="flex flex-1">
       {/* Video Player and Content */}
-      <div className="flex-1 flex flex-col bg-gray-100">
+      <div className="flex-1 flex flex-col bg-gray-100 h-dvh overflow-y-scroll no-scrollbar">
         {/* Header with Navigation */}
         <div className="bg-white border-b px-6 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-4">
@@ -106,13 +109,6 @@ const EditCourseDetailPageComponent = ({
                 <BookOpen className="w-4 h-4" />
                 <span>Overview</span>
               </TabsTrigger>
-              {/* <TabsTrigger
-                value="resources"
-                className="flex items-center space-x-2"
-              >
-                <Play className="w-4 h-4" />
-                <span>Resources</span>
-              </TabsTrigger> */}
             </TabsList>
 
             <TabsContent value="overview" className="p-6 space-y-6">
@@ -159,7 +155,7 @@ const EditCourseDetailPageComponent = ({
       </div>
 
       {/* Course Content Sidebar */}
-      <div className="w-80 bg-white border-l flex flex-col">
+      <div className="w-80 bg-white border-l flex flex-col h-dvh overflow-y-scroll no-scrollbar">
         <div className="p-4 border-b">
           <h3 className="font-semibold">Course Content</h3>
         </div>
@@ -214,27 +210,36 @@ const EditCourseDetailPageComponent = ({
             })}
           </div>
           <div className="p-4 border-t border-gray-200">
-            <Dialog
-              open={isAddLessonDialogOpen}
-              onOpenChange={setIsAddLessonDialogOpen}
-            >
-              <DialogTrigger asChild>
-                <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium text-md py-6 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
-                  <Plus className="w-5 h-5" />
-                  <span>Add New Lesson</span>
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add a new lesson</DialogTitle>
-                </DialogHeader>
-                <CreateCourseContentFormComponent
-                  courseId={selectedCourse.id}
-                  courseContentIndex={sortedLessons.length + 1}
-                  onOpenChange={setIsAddLessonDialogOpen}
-                />
-              </DialogContent>
-            </Dialog>
+            {mode == "edit" && (
+              <Dialog
+                open={isAddLessonDialogOpen}
+                onOpenChange={setIsAddLessonDialogOpen}
+              >
+                <DialogTrigger asChild>
+                  <Button
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium text-md py-6 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                    disabled={isSubmittingContent}
+                  >
+                    <Plus className="w-5 h-5" />
+                    <span>
+                      {isSubmittingContent ? "Uploading..." : "Add New Lesson"}
+                    </span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add a new lesson</DialogTitle>
+                  </DialogHeader>
+                  <CreateCourseContentFormComponent
+                    courseId={selectedCourse.id}
+                    courseContentIndex={sortedLessons.length + 1}
+                    onOpenChange={setIsAddLessonDialogOpen}
+                    isSubmitting={isSubmittingContent}
+                    setIsSubmitting={setIsSubmittingContent}
+                  />
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
         </div>
       </div>
@@ -242,4 +247,4 @@ const EditCourseDetailPageComponent = ({
   );
 };
 
-export default EditCourseDetailPageComponent;
+export default InstructorCourseDetailPageComponent;

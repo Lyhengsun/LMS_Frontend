@@ -53,7 +53,7 @@ const getSidebarItems = (role: string | null): SidebarItem[] => {
           icon: ListChecks,
           path: "/instructor/assignment",
         },
-        { label: "Manage Quizzes", icon: ListOrdered, path: "/instuctor/quiz" },
+        { label: "Manage Quizzes", icon: ListOrdered, path: "/instructor/quiz" },
         { label: "Settings", icon: Settings, path: "/instuctor/settings" },
       ];
     case "student":

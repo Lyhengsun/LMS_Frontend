@@ -22,10 +22,14 @@ const CreateCourseContentFormComponent = ({
   courseId,
   courseContentIndex,
   onOpenChange = (condition: boolean) => {},
+  isSubmitting,
+  setIsSubmitting,
 }: {
   courseId: number;
   courseContentIndex: number;
   onOpenChange?: Function;
+  isSubmitting: boolean;
+  setIsSubmitting: Function;
 }) => {
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState<String | null>(null);
@@ -95,11 +99,18 @@ const CreateCourseContentFormComponent = ({
       setFile(null);
       setFileError("Video is required");
     }
+    setIsSubmitting(false);
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form
+        onSubmit={form.handleSubmit(async (values) => {
+          setIsSubmitting(true);
+          await onSubmit(values);
+        })}
+        className="space-y-4"
+      >
         <div className="border-2 rounded-3xl border-[#088395]/50 ">
           <Label htmlFor="file-upload" className="group">
             <div
@@ -143,6 +154,7 @@ const CreateCourseContentFormComponent = ({
             className="hidden"
             accept="image/jpeg,image/png"
             onChange={handleFileChange}
+            disabled={isSubmitting}
           />
         </div>
 
@@ -151,6 +163,7 @@ const CreateCourseContentFormComponent = ({
           fieldName="courseContentName"
           label="New lesson name"
           placeholder="Lesson name"
+          disabled={isSubmitting}
         />
 
         <CustomFormField
@@ -159,10 +172,13 @@ const CreateCourseContentFormComponent = ({
           fieldName="durationMinutes"
           label="Lesson duration in Minutes"
           placeholder="Lesson duration"
+          disabled={isSubmitting}
         />
 
         <div className="w-full flex justify-end">
-          <Button type="submit">Submit</Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Uploading..." : "Submit"}
+          </Button>
         </div>
       </form>
     </Form>

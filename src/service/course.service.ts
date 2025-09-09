@@ -255,7 +255,7 @@ export const createCourseContentService = async (
   courseContent: z.infer<typeof createCourseContentSchema>,
   courseContentIndex: number,
   videoFileName: string,
-  courseId: number
+  courseDraftId: number
 ) => {
   const url = `${process.env.BASE_API_URL}/instructors/course/course-contents`;
   const header = await headerToken();
@@ -268,7 +268,7 @@ export const createCourseContentService = async (
         ...courseContent,
         courseContentIndex,
         videoFileName,
-        courseId,
+        courseId: courseDraftId,
       }),
     });
 
@@ -277,5 +277,21 @@ export const createCourseContentService = async (
   } catch (error) {
     console.log(error);
   }
-  return null;
+};
+
+export const deleteCourseByIdService = async (courseId: number) => {
+  const url = `${process.env.BASE_API_URL}/instructors/course/${courseId}`;
+  const header = await headerToken();
+  try {
+    const res = await fetch(url, {
+      headers: header as HeadersInit,
+      method: "DELETE",
+    });
+
+    const data: ApiResponse<null> = await res.json();
+
+    return data;
+  } catch (error) {
+    console.log(error);
+  }
 };

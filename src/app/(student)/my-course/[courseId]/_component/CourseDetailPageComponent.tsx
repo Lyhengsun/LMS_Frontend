@@ -8,8 +8,6 @@ import { CourseCompletionConfetti } from "@/src/components/CourseCompletionConfe
 import { useCourseProgressStore } from "@/src/components/CourseProgress";
 import { EnhancedVideoPlayer } from "@/src/components/EnhancedVideoPlayer";
 import { LessonCompletionCelebration } from "@/src/components/LessonCompletionCelebration";
-import { LessonResources } from "@/src/components/LessonResources";
-import { VideoComments } from "@/src/components/VideoComments";
 import { useVideoProgress } from "@/src/lib/hooks/useVideoProgress";
 import Course, { Lesson } from "@/src/type/Course";
 import confetti from "canvas-confetti";
@@ -296,7 +294,7 @@ const CourseDetailPageComponent = ({
       </div>
 
       {/* Course Content Sidebar */}
-      <div className="w-80 bg-white border-l flex flex-col">
+      <div className="w-80 bg-white border-l flex flex-col h-dvh overflow-y-scroll">
         <div className="p-4 border-b">
           <h3 className="font-semibold">Course Content</h3>
           <p className="text-sm text-gray-600 mt-1">

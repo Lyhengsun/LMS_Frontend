@@ -19,6 +19,7 @@ const CustomFormField = ({
   inputType = "text",
   placeholder,
   description = null,
+  disabled = false
 }: {
   control: Control<any, any, any>;
   fieldName: string;
@@ -26,6 +27,7 @@ const CustomFormField = ({
   inputType?: React.HTMLInputTypeAttribute;
   placeholder: string;
   description?: string | null;
+  disabled?: boolean
 }) => {
   return (
     <FormField
@@ -38,7 +40,7 @@ const CustomFormField = ({
             {inputType == "password" ? (
               <CustomPasswordField placeholder={placeholder} field={field} />
             ) : (
-              <Input type={inputType} placeholder={placeholder} {...field} />
+              <Input disabled={disabled} type={inputType} placeholder={placeholder} {...field} />
             )}
           </FormControl>
           {description && <FormDescription>{description}</FormDescription>}
