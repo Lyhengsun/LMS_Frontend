@@ -1,55 +1,40 @@
 "use client";
-import { Sidebar } from "@/src/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { getUserRole } from "@/src/lib/utils";
-import { Badge, Bell, Eye, EyeOff, Palette, Shield, User } from "lucide-react";
+import { Eye, EyeOff, Shield, User } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { useUserStore } from "@/src/store/useUserStore";
+import { Textarea } from "@/components/ui/textarea";
 
-const SettingPageComponent = () => {
+const UserProfilePageComponent = () => {
+  const currentUser = useUserStore((state) => state.currentUser);
   const userRole = getUserRole();
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [profileData, setProfileData] = useState({
-    firstName:
-      userRole === "student"
-        ? "Alex"
-        : userRole === "instructor"
-        ? "Dr."
-        : "Admin",
-    lastName:
-      userRole === "student"
-        ? "Johnson"
-        : userRole === "instructor"
-        ? "Smith"
-        : "User",
-    email: `${userRole}@test.com`,
-    phone: "+1 (555) 123-4567",
-    bio: `I am a ${userRole} at EduPlatform`,
+    fullName: currentUser?.fullName,
+    email: currentUser?.email,
+    phone: currentUser?.phoneNumber,
+    bio: currentUser?.bio ?? "",
   });
 
-  const [notificationSettings, setNotificationSettings] = useState({
-    emailNotifications: true,
-    pushNotifications: true,
-    assignmentReminders: true,
-    courseUpdates: true,
-    discussionReplies: true,
-    gradeNotifications: true,
-  });
+  // const [notificationSettings, setNotificationSettings] = useState({
+  //   emailNotifications: true,
+  //   pushNotifications: true,
+  //   assignmentReminders: true,
+  //   courseUpdates: true,
+  //   discussionReplies: true,
+  //   gradeNotifications: true,
+  // });
 
   const [securitySettings, setSecuritySettings] = useState({
     twoFactorAuth: false,
@@ -58,11 +43,11 @@ const SettingPageComponent = () => {
     confirmPassword: "",
   });
 
-  const [appearanceSettings, setAppearanceSettings] = useState({
-    theme: "light",
-    language: "en",
-    timezone: "UTC-6",
-  });
+  // const [appearanceSettings, setAppearanceSettings] = useState({
+  //   theme: "light",
+  //   language: "en",
+  //   timezone: "UTC-6",
+  // });
 
   const handleSaveProfile = () => {
     toast("Profile Updated", {
@@ -70,11 +55,11 @@ const SettingPageComponent = () => {
     });
   };
 
-  const handleSaveNotifications = () => {
-    toast("Notification Settings Updated", {
-      description: "Your notification preferences have been saved.",
-    });
-  };
+  // const handleSaveNotifications = () => {
+  //   toast("Notification Settings Updated", {
+  //     description: "Your notification preferences have been saved.",
+  //   });
+  // };
 
   const handleChangePassword = () => {
     if (securitySettings.newPassword !== securitySettings.confirmPassword) {
@@ -103,11 +88,11 @@ const SettingPageComponent = () => {
     });
   };
 
-  const handleSaveAppearance = () => {
-    toast("Appearance Settings Updated", {
-      description: "Your appearance preferences have been saved.",
-    });
-  };
+  // const handleSaveAppearance = () => {
+  //   toast("Appearance Settings Updated", {
+  //     description: "Your appearance preferences have been saved.",
+  //   });
+  // };
 
   const getRoleColor = () => {
     switch (userRole) {
@@ -128,7 +113,7 @@ const SettingPageComponent = () => {
       <header className="bg-white shadow-sm border-b border-gray-200 px-8 py-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
             <p className="text-gray-600 mt-1">
               Manage your account preferences and settings
             </p>
@@ -155,49 +140,17 @@ const SettingPageComponent = () => {
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="firstName">First Name</Label>
+                  <Label htmlFor="fullName">Full Name</Label>
                   <Input
-                    id="firstName"
-                    value={profileData.firstName}
+                    id="fullName"
+                    value={profileData.fullName}
                     onChange={(e) =>
                       setProfileData({
                         ...profileData,
-                        firstName: e.target.value,
+                        fullName: e.target.value,
                       })
                     }
                     placeholder="Enter your first name"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input
-                    id="lastName"
-                    value={profileData.lastName}
-                    onChange={(e) =>
-                      setProfileData({
-                        ...profileData,
-                        lastName: e.target.value,
-                      })
-                    }
-                    placeholder="Enter your last name"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={profileData.email}
-                    onChange={(e) =>
-                      setProfileData({
-                        ...profileData,
-                        email: e.target.value,
-                      })
-                    }
-                    placeholder="Enter your email"
                   />
                 </div>
                 <div>
@@ -216,9 +169,27 @@ const SettingPageComponent = () => {
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="col-span-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={profileData.email}
+                    onChange={(e) =>
+                      setProfileData({
+                        ...profileData,
+                        email: e.target.value,
+                      })
+                    }
+                    placeholder="Enter your email"
+                  />
+                </div>
+              </div>
+
               <div>
                 <Label htmlFor="bio">Bio</Label>
-                <Input
+                <Textarea
                   id="bio"
                   value={profileData.bio}
                   onChange={(e) =>
@@ -238,7 +209,7 @@ const SettingPageComponent = () => {
           </Card>
 
           {/* Notification Settings */}
-          <Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Bell
@@ -340,7 +311,7 @@ const SettingPageComponent = () => {
                 Save Notification Settings
               </Button>
             </CardContent>
-          </Card>
+          </Card> */}
 
           {/* Security Settings */}
           <Card>
@@ -354,7 +325,7 @@ const SettingPageComponent = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
+              {/* <div className="flex items-center justify-between">
                 <div>
                   <Label htmlFor="twoFactorAuth">
                     Two-Factor Authentication
@@ -375,7 +346,7 @@ const SettingPageComponent = () => {
                 />
               </div>
 
-              <Separator />
+              <Separator /> */}
 
               <div>
                 <h3 className="text-lg font-medium mb-4">Change Password</h3>
@@ -485,7 +456,7 @@ const SettingPageComponent = () => {
           </Card>
 
           {/* Appearance Settings */}
-          <Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Palette
@@ -573,11 +544,11 @@ const SettingPageComponent = () => {
                 Save Appearance Settings
               </Button>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
       </main>
     </div>
   );
 };
 
-export default SettingPageComponent;
+export default UserProfilePageComponent;

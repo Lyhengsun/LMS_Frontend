@@ -58,7 +58,7 @@ const LoginPageComponent = () => {
     <>
       <AuthFormLayoutComponent
         title="Login"
-        subtitle="Welcome to EduPlatform"
+        subtitle="Welcome to LMS"
         description="Sign in to your account to continue"
         icon={<GraduationCap className="w-6 h-6 text-white" />}
         footer={
@@ -112,7 +112,7 @@ const LoginPageComponent = () => {
               <Button
                 type="submit"
                 className="w-full"
-                style={{ backgroundColor: "#8B5CF6" }}
+                style={{ backgroundColor: "#0092c7" }}
               >
                 <LogIn className="w-4 h-4 mr-2" />
                 Sign In

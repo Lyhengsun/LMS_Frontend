@@ -12,14 +12,11 @@ import {
   Ban,
   CheckCircle,
   Eye,
-  GraduationCap,
   Key,
   MoreVertical,
   Search,
-  Shield,
   Trash2,
   Users,
-  XCircle,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -33,7 +30,6 @@ import {
   getAllUserForAdminAction,
 } from "@/src/action/userAction";
 import CustomPaginationOnClick from "@/src/app/_components/CustomPaginationOnClick";
-import CustomPopUp from "@/src/app/_components/CustomPopUp";
 import CustomYesNoPopUp from "@/src/app/_components/CustomYesNoPopUp";
 
 const AllUserTabComponent = ({

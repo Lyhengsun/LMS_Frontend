@@ -17,16 +17,18 @@ export function AuthFormLayoutComponent({ title, subtitle, description, icon, ch
     <div
       className="min-h-screen flex items-center justify-center p-4"
       style={{
-        background: "linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%)",
+        background: "linear-gradient(135deg, #0092c7 0%, #0092c7 100%)",
       }}
     >
       <div className="w-full max-w-5xl flex items-center justify-center">
         {/* Left side - Title */}
         <div className="hidden lg:flex flex-col items-start justify-center flex-1 text-white mr-16">
           <h1 className="text-6xl font-bold mb-4">
-            Education
+            Learning
             <br />
-            Platform
+            Management
+            <br />
+            System
             <br />
             <span className="text-yellow-400">{title}</span>
           </h1>
@@ -37,7 +39,7 @@ export function AuthFormLayoutComponent({ title, subtitle, description, icon, ch
           <Card className="w-full">
             <CardHeader className="text-center">
               <div className="flex justify-center mb-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-r from-cyan-600 to-blue-500 rounded-xl flex items-center justify-center">
                   {icon}
                 </div>
               </div>

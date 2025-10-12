@@ -3,6 +3,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
+  approveCourseForAdminAction,
+  getCourseForAdminAction,
+} from "@/src/action/courseAction";
+import CustomPaginationOnClick from "@/src/app/_components/CustomPaginationOnClick";
+import Course, { DraftCourse } from "@/src/type/Course";
+import {
   AlertCircle,
   BookOpen,
   CheckCircle,
@@ -10,100 +16,67 @@ import {
   Eye,
   XCircle,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-interface Course {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  duration: string;
-  difficulty: string;
-  thumbnail: string;
-  videoUrl: string;
-  status: "pending" | "approved" | "rejected";
-  createdAt: Date;
-  instructor: string;
-}
-
 const CourseManagementPageComponent = () => {
-  const [pendingCourses, setPendingCourses] = useState<Course[]>([]);
-  const [approvedCourses, setApprovedCourses] = useState<Course[]>([]);
-  const [rejectedCourses, setRejectedCourses] = useState<Course[]>([]);
+  const [pendingCourses, setPendingCourses] = useState<DraftCourse[]>([]);
+  const [pendingCoursePage, setPendingCoursePage] = useState(1);
+  const [pendingCourseMaxPage, setPendingCourseMaxPage] = useState(1);
+
+  const [approvedCourses, setApprovedCourses] = useState<DraftCourse[]>([]);
+  const [approvedCoursePage, setApprovedCoursePage] = useState(1);
+  const [approvedCourseMaxPage, setApprovedCourseMaxPage] = useState(1);
+
+  const [rejectedCourses, setRejectedCourses] = useState<DraftCourse[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
-    loadCourses();
+    loadPendingCourses();
+  }, [pendingCoursePage]);
 
-    // Listen for storage changes to update when new courses are submitted
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "pendingCourses" || e.key === "approvedCourses") {
-        loadCourses();
-      }
-    };
+  useEffect(() => {
+    loadApprovedCourses();
+  }, [approvedCoursePage]);
 
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
+  const loadPendingCourses = async () => {
+    const data = await getCourseForAdminAction(pendingCoursePage, 8, undefined, false, false);
 
-  const loadCourses = () => {
-    // Load pending courses from localStorage
-    const stored = JSON.parse(localStorage.getItem("pendingCourses") || "[]");
-    setPendingCourses(
-      stored.filter((course: Course) => course.status === "pending")
-    );
-    setRejectedCourses(
-      stored.filter((course: Course) => course.status === "rejected")
-    );
-
-    // Load approved courses
-    const approved = JSON.parse(
-      localStorage.getItem("approvedCourses") || "[]"
-    );
-    setApprovedCourses(approved);
+    if (data.success) {
+      setPendingCourses(data.data?.items!);
+      setPendingCourseMaxPage(data.data?.pagination.totalPages ?? 1);
+    } else {
+      toast.error("Failed to load pending courses");
+    }
   };
 
-  const handleApprove = (courseId: string) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to approve this course?"
-    );
-    if (!confirmed) return;
+  const loadApprovedCourses = async () => {
+    const data = await getCourseForAdminAction(approvedCoursePage, 8, undefined, true, false);
 
-    const course = pendingCourses.find((c) => c.id === courseId);
-    if (!course) return;
-
-    const updatedCourse = { ...course, status: "approved" as const };
-
-    // Update localStorage for pending courses
-    const allPending = JSON.parse(
-      localStorage.getItem("pendingCourses") || "[]"
-    );
-    const updatedPending = allPending.map((c: Course) =>
-      c.id === courseId ? updatedCourse : c
-    );
-    localStorage.setItem("pendingCourses", JSON.stringify(updatedPending));
-
-    // Add to approved courses
-    const approved = JSON.parse(
-      localStorage.getItem("approvedCourses") || "[]"
-    );
-    approved.push(updatedCourse);
-    localStorage.setItem("approvedCourses", JSON.stringify(approved));
-
-    // Update state
-    setPendingCourses((prev) => prev.filter((c) => c.id !== courseId));
-    setApprovedCourses((prev) => [updatedCourse, ...prev]);
-
-    // Trigger storage event for other components
-    window.dispatchEvent(new Event("storage"));
-
-    toast("Course Approved", {
-      description:
-        "The course has been approved and is now available to students",
-    });
+    if (data.success) {
+      setApprovedCourses(data.data?.items!);
+      setApprovedCourseMaxPage(data.data?.pagination.totalPages ?? 1);
+    } else {
+      toast.error("Failed to load approved courses");
+    }
   };
 
-  const handleReject = (courseId: string) => {
+  const handleApprove = async (courseId: number) => {
+    const data = await approveCourseForAdminAction(courseId);
+
+    if (data.success) {
+      toast.success("Course Approved", {
+        description:
+          "The course has been approved and is now available to students",
+      });
+    } else {
+      console.log("handle approve data : ", data)
+      toast.error("Failed to approve course");
+    }
+  };
+
+  const handleReject = (courseId: number) => {
     const reason = window.prompt("Please provide a reason for rejection:");
     if (!reason) return;
 
@@ -139,7 +112,12 @@ const CourseManagementPageComponent = () => {
     });
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (course: DraftCourse) => {
+    const status = course.isApproved
+      ? "approved"
+      : course.isRejected
+      ? "rejected"
+      : undefined;
     switch (status) {
       case "approved":
         return <Badge className="bg-green-100 text-green-800">Approved</Badge>;
@@ -213,16 +191,16 @@ const CourseManagementPageComponent = () => {
                           <h3 className="font-semibold text-gray-900">
                             {course.title}
                           </h3>
-                          {getStatusBadge(course.status)}
+                          {getStatusBadge(course)}
                         </div>
                         <p className="text-gray-600 mb-3">
                           {course.description}
                         </p>
                         <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
                           <span>Category: {course.category}</span>
-                          <span>Difficulty: {course.difficulty}</span>
+                          <span>Difficulty: {course.level}</span>
                           {course.duration && (
-                            <span>Duration: {course.duration}</span>
+                            <span>Duration: {course.duration} minutes</span>
                           )}
                         </div>
                         <div className="text-xs text-gray-400">
@@ -234,8 +212,9 @@ const CourseManagementPageComponent = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => window.open(course.videoUrl, "_blank")}
-                          disabled={!course.videoUrl}
+                          onClick={() =>
+                            router.push(`/admin/course-management/${course.id}`)
+                          }
                         >
                           <Eye className="w-4 h-4 mr-1" />
                           Preview
@@ -262,6 +241,23 @@ const CourseManagementPageComponent = () => {
                   </div>
                 ))}
               </div>
+            )}
+
+            {pendingCourses.length > 0 && (
+              <CustomPaginationOnClick
+                currentPage={pendingCoursePage}
+                maxPage={pendingCourseMaxPage}
+                nextOnClick={() => {
+                  if (pendingCoursePage < pendingCourseMaxPage) {
+                    setPendingCoursePage((p) => p + 1);
+                  }
+                }}
+                previousOnClick={() => {
+                  if (pendingCoursePage > 1) {
+                    setPendingCoursePage((p) => p - 1);
+                  }
+                }}
+              />
             )}
           </CardContent>
         </Card>
@@ -291,7 +287,7 @@ const CourseManagementPageComponent = () => {
                       <h3 className="font-semibold text-gray-900 text-sm">
                         {course.title}
                       </h3>
-                      {getStatusBadge(course.status)}
+                      {getStatusBadge(course)}
                     </div>
                     <p className="text-gray-600 text-sm mb-2 line-clamp-2">
                       {course.description}
@@ -307,6 +303,23 @@ const CourseManagementPageComponent = () => {
                   </div>
                 ))}
               </div>
+            )}
+
+            {approvedCourses.length > 0 && (
+              <CustomPaginationOnClick
+                currentPage={approvedCoursePage}
+                maxPage={approvedCourseMaxPage}
+                nextOnClick={() => {
+                  if (approvedCoursePage < approvedCourseMaxPage) {
+                    setApprovedCoursePage((p) => p + 1);
+                  }
+                }}
+                previousOnClick={() => {
+                  if (approvedCoursePage > 1) {
+                    setApprovedCoursePage((p) => p - 1);
+                  }
+                }}
+              />
             )}
           </CardContent>
         </Card>

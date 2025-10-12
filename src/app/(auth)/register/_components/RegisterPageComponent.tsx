@@ -47,7 +47,7 @@ export default function RegisterPageComponent() {
   return (
     <AuthFormLayoutComponent
       title="Register"
-      subtitle="Join EduPlatform"
+      subtitle="Join LMS"
       description="Create your account to get started"
       icon={<GraduationCap className="w-6 h-6 text-white" />}
       footer={
@@ -111,7 +111,7 @@ export default function RegisterPageComponent() {
 
           <Button
             type="submit"
-            className="w-full bg-purple-500 hover:bg-purple-300 active:bg-purple-300"
+            className="w-full bg-cyan-600 hover:bg-cyan-300 active:bg-cyan-300"
           >
             <UserPlus className="w-4 h-4 mr-2" />
             Create Account

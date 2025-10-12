@@ -81,7 +81,7 @@ const CourseCardComponent = ({
             />
           </div>
 
-          {role == "student" && courseProgress.progressPercentage > 0 && (
+          {/* {role == "student" && courseProgress.progressPercentage > 0 && (
             <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-2">
               <div className="flex items-center justify-between text-white text-xs mb-1">
                 <span>{courseProgress.progressPercentage}% complete</span>
@@ -92,7 +92,7 @@ const CourseCardComponent = ({
                 className="h-1 bg-gray-600"
               />
             </div>
-          )}
+          )} */}
         </div>
         <Card
           key={course.id}

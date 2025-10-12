@@ -1,8 +1,8 @@
 import React from "react";
-import SettingPageComponent from "../../_components/SettingPageComponent";
+import UserProfilePageComponent from "../../_components/ProfilePageComponent";
 
 const AdminSettingPage = () => {
-  return <SettingPageComponent />;
+  return <UserProfilePageComponent />;
 };
 
 export default AdminSettingPage;

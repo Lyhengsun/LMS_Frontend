@@ -4,24 +4,26 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  completeCourseContentForStudentAction,
+  getCourseProgressByCourseIdForStudentAction,
+} from "@/src/action/courseAction";
 import { CourseCompletionConfetti } from "@/src/components/CourseCompletionConfetti";
 import { useCourseProgressStore } from "@/src/components/CourseProgress";
 import { EnhancedVideoPlayer } from "@/src/components/EnhancedVideoPlayer";
 import { LessonCompletionCelebration } from "@/src/components/LessonCompletionCelebration";
 import { useVideoProgress } from "@/src/lib/hooks/useVideoProgress";
-import Course, { Lesson } from "@/src/type/Course";
+import Course, { CourseProgressResponse, Lesson } from "@/src/type/Course";
 import confetti from "canvas-confetti";
 import {
   ArrowLeft,
   BookOpen,
   CheckCircle,
   Clock,
-  MessageCircle,
-  Play,
   PlayCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const CourseDetailPageComponent = ({
   selectedCourse,
@@ -31,15 +33,53 @@ const CourseDetailPageComponent = ({
   const sortedLessons = selectedCourse.lessons.sort(
     (a, b) => a.index - b.index
   );
-  const { startCourse, completeLesson, getCourseProgress } =
-    useCourseProgressStore();
   const [selectedContent, setSelectedContent] = useState<Lesson | null>(
     sortedLessons[0]
   );
-  const courseProgress = getCourseProgress(selectedCourse.id);
+  const [courseProgressData, setCourseProgressData] =
+    useState<CourseProgressResponse | null>(null);
+
+  const courseProgress = courseProgressData
+    ? {
+        hasStarted: true,
+        completedLessons: courseProgressData?.contentProgresses.filter(
+          (c) => c.completed
+        ),
+        totalLessons: courseProgressData?.contentProgresses.length,
+        isCompleted:
+          courseProgressData?.completedCourseContentCount ==
+          courseProgressData?.maxCourseContentCount,
+        progressPercentage:
+          (courseProgressData?.completedCourseContentCount! /
+            courseProgressData?.maxCourseContentCount!) *
+          100,
+      }
+    : {
+        hasStarted: true,
+        completedLessons: [],
+        totalLessons: 0,
+        isCompleted: false,
+        progressPercentage: 0,
+      };
+
   const router = useRouter();
   const [showCelebration, setShowCelebration] = useState(false);
   const [showCourseCompletion, setShowCourseCompletion] = useState(false);
+
+  const loadCourseProgressData = async () => {
+    const courseProgressDataRes =
+      await getCourseProgressByCourseIdForStudentAction(selectedCourse.id);
+
+    if (courseProgressDataRes.success) {
+      setCourseProgressData(courseProgressDataRes.data!);
+      const firstIncompletedContentIndex = courseProgressDataRes?.data!.contentProgresses!.findIndex(c => !c.completed);
+      setSelectedContent(sortedLessons[firstIncompletedContentIndex])
+    }
+  };
+
+  useEffect(() => {
+    loadCourseProgressData();
+  }, []);
 
   const videoProgress = useVideoProgress(
     selectedCourse?.id || 0,
@@ -48,7 +88,6 @@ const CourseDetailPageComponent = ({
 
   const handleVideoClose = () => {
     setSelectedContent(null);
-    // setSelectedCourse(null);
   };
 
   const handleVideoProgress = (
@@ -67,16 +106,17 @@ const CourseDetailPageComponent = ({
     }
   };
 
-  const handleLessonComplete = (courseId: number, lessonId: number) => {
-    completeLesson(courseId, lessonId);
+  const handleLessonComplete = async (courseContentId: number) => {
+    await completeCourseContentForStudentAction(courseContentId);
+    await loadCourseProgressData();
 
     // Check if course is now complete
-    const courseProgress = getCourseProgress(courseId);
     const course = selectedCourse;
 
     if (
       course &&
-      courseProgress.completedLessons.length + 1 >= course.lessons.length
+      courseProgressData?.completedCourseContentCount! + 1 >=
+        courseProgressData?.maxCourseContentCount!
     ) {
       // Course completed! Show course completion celebration
       setTimeout(() => {
@@ -140,9 +180,7 @@ const CourseDetailPageComponent = ({
                 duration
               );
             }}
-            onEnded={() =>
-              handleLessonComplete(selectedCourse.id, selectedContent?.id!)
-            }
+            onEnded={() => handleLessonComplete(selectedContent!.id)}
             onNext={() => {
               const currentIndex = sortedLessons.findIndex(
                 (l: any) => l.id === selectedContent?.id
@@ -305,9 +343,9 @@ const CourseDetailPageComponent = ({
         <div className="flex-1 overflow-y-auto">
           <div className="p-2">
             {sortedLessons.map((lesson: any, index: number) => {
-              const isCompleted = courseProgress.completedLessons.includes(
-                lesson.id
-              );
+              const isCompleted = courseProgress.completedLessons
+                .map((c) => c.id)
+                .includes(lesson.id);
               const isCurrent = lesson.id === selectedContent?.id;
 
               return (

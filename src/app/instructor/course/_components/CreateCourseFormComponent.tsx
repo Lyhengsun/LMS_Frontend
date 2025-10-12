@@ -27,6 +27,28 @@ const CreateCourseFormComponent = ({
   const [previewUrl, setPreviewUrl] = useState<String | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
+  // Define allowed file extensions
+  const allowedExtensions = [".png", ".svg", ".jpg", ".jpeg", ".gif"];
+  const allowedMimeTypes = [
+    "image/png",
+    "image/svg+xml",
+    "image/jpeg",
+    "image/jpg",
+    "image/gif",
+  ];
+
+  // Helper function to validate file type
+  const isValidFileType = (file: File): boolean => {
+    const fileName = file.name.toLowerCase();
+    const fileExtension = fileName.substring(fileName.lastIndexOf("."));
+
+    // Check both extension and MIME type for better validation
+    const hasValidExtension = allowedExtensions.includes(fileExtension);
+    const hasValidMimeType = allowedMimeTypes.includes(file.type);
+
+    return hasValidExtension && hasValidMimeType;
+  };
+
   // Effect to create and revoke object URL for image preview
   useEffect(() => {
     if (!file) {
@@ -56,7 +78,6 @@ const CreateCourseFormComponent = ({
     defaultValues: {
       courseName: "",
       courseDescription: "",
-      maxPoints: "10" 
     },
   });
 
@@ -76,7 +97,17 @@ const CreateCourseFormComponent = ({
 
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const droppedFile = e.dataTransfer.files[0];
-      setFile(droppedFile);
+
+      // Validate file type before setting
+      if (isValidFileType(droppedFile)) {
+        setFile(droppedFile);
+      } else {
+        toast.error(
+          `Invalid file type. Please select a file with one of these extensions: ${allowedExtensions.join(
+            ", "
+          )}`
+        );
+      }
     }
   };
 
@@ -175,17 +206,17 @@ const CreateCourseFormComponent = ({
           placeholder="Description"
         />
 
-        <CustomSelectFormField
-          control={form.control}
-          fieldName="courseCategoryId"
-          label="Category"
-          placeholder="Select a category"
-          options={categories.map((c) => {
-            return { label: c.name, value: c.id.toString() };
-          })}
-        />
-
         <div className="grid grid-cols-2 gap-x-4">
+          <CustomSelectFormField
+            control={form.control}
+            fieldName="courseCategoryId"
+            label="Category"
+            placeholder="Select a category"
+            options={categories.map((c) => {
+              return { label: c.name, value: c.id.toString() };
+            })}
+          />
+
           <CustomSelectFormField
             control={form.control}
             fieldName="level"
@@ -198,13 +229,13 @@ const CreateCourseFormComponent = ({
             ]}
           />
 
-          <CustomFormField
+          {/* <CustomFormField
             control={form.control}
             fieldName="maxPoints"
             inputType="number"
             label="Max Points"
             placeholder="Max Points"
-          />
+          /> */}
         </div>
 
         <div className="w-full flex justify-end">

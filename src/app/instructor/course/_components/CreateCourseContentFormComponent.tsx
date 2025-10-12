@@ -35,6 +35,7 @@ const CreateCourseContentFormComponent = ({
     defaultValues: {
       courseContentName: "",
       durationMinutes: "1",
+      points: "10",
     },
   });
 
@@ -161,14 +162,24 @@ const CreateCourseContentFormComponent = ({
           disabled={isSubmitting}
         />
 
-        <CustomFormField
-          control={form.control}
-          inputType="number"
-          fieldName="durationMinutes"
-          label="Lesson duration in Minutes"
-          placeholder="Lesson duration"
-          disabled={isSubmitting}
-        />
+        <div className="grid grid-cols-2 gap-x-4">
+          <CustomFormField
+            control={form.control}
+            inputType="number"
+            fieldName="durationMinutes"
+            label="Lesson duration in Minutes"
+            placeholder="Lesson duration"
+            disabled={isSubmitting}
+          />
+
+          <CustomFormField
+            control={form.control}
+            fieldName="points"
+            inputType="number"
+            label="Points"
+            placeholder="Points"
+          />
+        </div>
 
         <div className="w-full flex justify-end">
           <Button type="submit" disabled={isSubmitting}>
