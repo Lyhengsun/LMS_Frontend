@@ -19,31 +19,88 @@ import { toast } from "sonner";
 import useDebounce from "@/src/lib/hooks/useDebounce";
 import { Quiz, QuizRequest } from "@/src/type/Quiz";
 import CreateQuizFormComponent from "./CreateQuizFormComponent";
+import { useInView } from "react-intersection-observer";
 
 const InstructorQuizPageComponent = () => {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
-  const [size, setSize] = useState(10);
-  const [maxPage, setMaxPage] = useState(1);
+  const [oldPage, setOldPage] = useState(1);
+  const [hasNextPage, setHasNextPage] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [newQuizRequest, setNewQuizRequest] = useState<QuizRequest>();
+  const { ref, inView } = useInView();
 
   const debounceSearch = useDebounce(searchTerm, 300);
 
   const loadQuizzes = async () => {
-    const data = await getQuizActionForInstructor(page, size, debounceSearch);
+    const data = await getQuizActionForInstructor(page, 10, debounceSearch);
     if (data.success) {
-      setQuizzes(data.data?.items!);
-      setMaxPage(data.data?.pagination.totalPages!);
+      const pagination = data.data?.pagination;
+      setHasNextPage(pagination!.currentPage < pagination!.totalPages);
+      return data.data?.items!;
     } else {
       toast.error("Failed to fetch quizzes");
+      setHasNextPage(false);
     }
   };
 
+  const updateQuizzes = async () => {
+    console.log("update quiz");
+    if (page === 1) {
+      const newLoadedQuiz = await loadQuizzes();
+      setQuizzes(newLoadedQuiz!);
+    }
+    if (oldPage < page) {
+      const newLoadedQuiz = await loadQuizzes();
+      setQuizzes((prevQuizzes) => [...prevQuizzes, ...newLoadedQuiz!]);
+    }
+    setOldPage(page);
+  };
+
+  // Load quizzes when page changes
   useEffect(() => {
-    loadQuizzes();
-  }, [page, size, debounceSearch, isCreateDialogOpen])
+    console.log("load quiz");
+    updateQuizzes();
+  }, [page]);
+
+  // Trigger page increment when scrolling into view
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      setPage(page + 1);
+    }
+  }, [inView]);
+
+  // Reset and reload when search term changes
+  useEffect(() => {
+    setPage(1);
+    const reloadQuiz = async () => {
+      const quizzes = await loadQuizzes();
+      if (quizzes) {
+        setQuizzes(quizzes);
+      }
+    };
+
+    if (oldPage === page) {
+      reloadQuiz();
+    }
+  }, [debounceSearch]);
+
+  // Reload quizzes when dialog closes (after creating a new quiz)
+  useEffect(() => {
+    if (!isCreateDialogOpen) {
+      setPage(1);
+      const reloadQuiz = async () => {
+        const quizzes = await loadQuizzes();
+        if (quizzes) {
+          setQuizzes(quizzes);
+        }
+      };
+
+      if (oldPage === page) {
+        reloadQuiz();
+      }
+    }
+  }, [isCreateDialogOpen]);
 
   return (
     <div className="flex-1 flex flex-col">
@@ -95,12 +152,28 @@ const InstructorQuizPageComponent = () => {
           </Dialog>
         </div>
 
-        {/* Quizzes List */}
-        <div className="space-y-4">
-          {quizzes.map((quiz) => (
-            <QuizCardComponent key={quiz.id} quiz={quiz} />
+        {/* Quizzes Grid - Two Columns */}
+        <div className="space-y-4 grid grid-cols-2 gap-x-4">
+          {quizzes.map((quiz, index) => (
+            <div key={quiz.id}>
+              {index === quizzes.length - 1 && hasNextPage && (
+                <div ref={ref}></div>
+              )}
+              <QuizCardComponent quiz={quiz} />
+            </div>
           ))}
         </div>
+
+        {/* Empty State */}
+        {quizzes.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">
+              {searchTerm !== "" 
+                ? "No quizzes found matching your search." 
+                : "No quizzes available. Create your first quiz!"}
+            </p>
+          </div>
+        )}
       </main>
     </div>
   );

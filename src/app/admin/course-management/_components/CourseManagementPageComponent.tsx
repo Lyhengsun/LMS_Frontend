@@ -41,7 +41,13 @@ const CourseManagementPageComponent = () => {
   }, [approvedCoursePage]);
 
   const loadPendingCourses = async () => {
-    const data = await getCourseForAdminAction(pendingCoursePage, 8, undefined, false, false);
+    const data = await getCourseForAdminAction(
+      pendingCoursePage,
+      8,
+      undefined,
+      false,
+      false
+    );
 
     if (data.success) {
       setPendingCourses(data.data?.items!);
@@ -52,7 +58,13 @@ const CourseManagementPageComponent = () => {
   };
 
   const loadApprovedCourses = async () => {
-    const data = await getCourseForAdminAction(approvedCoursePage, 8, undefined, true, false);
+    const data = await getCourseForAdminAction(
+      approvedCoursePage,
+      8,
+      undefined,
+      true,
+      false
+    );
 
     if (data.success) {
       setApprovedCourses(data.data?.items!);
@@ -66,12 +78,14 @@ const CourseManagementPageComponent = () => {
     const data = await approveCourseForAdminAction(courseId);
 
     if (data.success) {
+      loadApprovedCourses();
+      loadPendingCourses();
       toast.success("Course Approved", {
         description:
           "The course has been approved and is now available to students",
       });
     } else {
-      console.log("handle approve data : ", data)
+      console.log("handle approve data : ", data);
       toast.error("Failed to approve course");
     }
   };

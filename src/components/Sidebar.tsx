@@ -11,6 +11,7 @@ import {
   Bot,
   Trophy,
   UserIcon,
+  GraduationCap,
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -105,8 +106,7 @@ export const Sidebar = ({ role = "student" }: { role?: string }) => {
     return pathname === path;
   };
 
-  const isQuizTakingPage =
-    pathname?.includes("/quiz/");
+  const isQuizTakingPage = pathname?.includes("/quiz/");
 
   return (
     !isQuizTakingPage && (
@@ -114,12 +114,14 @@ export const Sidebar = ({ role = "student" }: { role?: string }) => {
         {/* Logo */}
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
-              <span className="text-white font-bold text-sm">E</span>
+            <div className="w-10 h-9 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+              <span className="text-white font-bold text-sm">
+                <GraduationCap className="w-6 h-6 text-white" />
+              </span>
             </div>
             <div>
-              <h1 className="text-lg font-semibold text-gray-900">
-                EduPlatform
+              <h1 className="text-xs font-semibold text-gray-900 mb-1">
+                Learning Management System
               </h1>
               <p className="text-xs text-gray-500 capitalize">{userRole}</p>
             </div>

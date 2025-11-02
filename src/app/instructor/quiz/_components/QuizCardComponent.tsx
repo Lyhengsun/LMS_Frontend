@@ -6,10 +6,35 @@ import { Quiz } from "@/src/type/Quiz";
 import { HelpCircle, Clock, Users, Edit, Trash2, Eye } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
+import { deleteQuizByIdForInstructorAction } from "@/src/action/quizAction";
+import { toast } from "sonner";
+import CustomYesNoPopUp from "@/src/app/_components/CustomYesNoPopUp";
 
 const QuizCardComponent = ({ quiz }: { quiz: Quiz }) => {
   const router = useRouter();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteQuiz = async () => {
+    setIsDeleting(true);
+    try {
+      const result = await deleteQuizByIdForInstructorAction(quiz.id);
+
+      if (result.success) {
+        toast.success(
+          (result.message as string) || "Quiz deleted successfully"
+        );
+        router.refresh();
+      } else {
+        toast.error((result.message as string) || "Failed to delete quiz");
+      }
+    } catch (error) {
+      toast.error("An error occurred while deleting the quiz");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div>
@@ -65,16 +90,27 @@ const QuizCardComponent = ({ quiz }: { quiz: Quiz }) => {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    setDeleteDialogOpen(true);
                   }}
+                  disabled={isDeleting}
                 >
                   <Trash2 className="w-4 h-4 mr-1" />
-                  Delete
+                  {isDeleting ? "Deleting..." : "Delete"}
                 </Button>
               </div>
             </div>
           </CardContent>
         </Card>
       </Link>
+
+      <CustomYesNoPopUp
+        title="Delete Quiz"
+        description={`Are you sure you want to delete "${quiz.quizName}"? This action cannot be undone.`}
+        viewDialogOpenState={deleteDialogOpen}
+        setViewDialogOpenState={setDeleteDialogOpen}
+        onClickYes={handleDeleteQuiz}
+        onClickNo={() => {}}
+      />
     </div>
   );
 };

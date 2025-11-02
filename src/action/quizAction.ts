@@ -3,6 +3,7 @@
 import { revalidateTag } from "next/cache";
 import {
   createQuizServiceForInstructor,
+  deleteQuizByIdForInstructorService,
   getQuizServiceForInstructor,
   getQuizzesForStudentService,
   studentDeleteTakeQuizByIdService,
@@ -12,6 +13,7 @@ import {
   updateQuizServiceForInstructor,
 } from "../service/quiz.service";
 import { QuizRequest } from "../type/Quiz";
+import ApiResponse from "../type/ApiResponse";
 
 export const getQuizActionForInstructor = async (
   page: number = 1,
@@ -36,6 +38,20 @@ export const updateQuizActionForInstructor = async (
     return { success: true, data: data };
   } catch (error) {
     return { success: false, error: error };
+  }
+};
+
+export const deleteQuizByIdForInstructorAction = async (quizId: number) => {
+  try {
+    const data: ApiResponse<null> | undefined =
+      await deleteQuizByIdForInstructorService(quizId);
+
+    if (data?.success) {
+      return { success: true, message: data.message };
+    }
+    return { success: false, message: data?.message };
+  } catch (error) {
+    return { success: false, message: error };
   }
 };
 

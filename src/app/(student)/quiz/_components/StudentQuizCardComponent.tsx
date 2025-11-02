@@ -51,7 +51,7 @@ const StudentQuizCardComponent = ({
               {quiz.level}
             </Badge>
           </div>
-          <p className="text-muted-foreground mb-4">{quiz.quizDescription}</p>
+          <p className="text-muted-foreground mb-4 h-12 line-clamp-2 overflow-ellipsis">{quiz.quizDescription}</p>
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <HelpCircle className="h-4 w-4" />

@@ -16,6 +16,26 @@ const StudentLeaderboardComponent = ({
   currentUserLeaderboard: Leaderboard;
   currentUserRank: number;
 }) => {
+  // const currentUserLeaderboard = {
+  //   quizPoints: 450,
+  //   coursePoints: 380,
+  //   assignmentPoints: 320,
+  //   totalPoints: 1150,
+  //   student: {
+  //     id: "4  ",
+  //     fullName: "Student",
+  //     email: "sarah.johnson@example.com",
+  //     bio: "Computer Science student passionate about web development",
+  //     role: "ROLE_STUDENT",
+  //     isVerified: true,
+  //     isDisabled: false,
+  //     isApproved: true,
+  //     phoneNumber: "+1234567890",
+  //     avatarUrl: "https://i.pravatar.cc/150?img=1",
+  //     createdAt: "2024-01-15T08:00:00Z",
+  //     editedAt: "2025-10-10T14:30:00Z",
+  //   },
+  // };
 
   const getRankBadge = (rank: number) => {
     if (rank === 1)
