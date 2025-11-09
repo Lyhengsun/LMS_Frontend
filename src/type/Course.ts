@@ -8,6 +8,9 @@ type Course = {
   category: string;
   thumbnail: string;
   students: number;
+  price: number;
+  courseAvailability: CourseAvailability;
+  isAccessible: boolean;
   lessons: Lesson[];
 };
 
@@ -25,6 +28,8 @@ export type Lesson = {
   videoUrl: string;
   isCompleted: boolean;
   index: number;
+  points: number;
+  requirePayment: boolean;
 };
 
 export type CourseDraftResponse = {
@@ -40,6 +45,9 @@ export type CourseDraftResponse = {
   isSubmitted: boolean;
   category: CategoryResponse;
   author: Author;
+  price: number;
+  courseAvailability: CourseAvailability;
+  isAccessible: boolean;
   contents: Content[];
   createdAt: string;
 };
@@ -49,7 +57,9 @@ export type Content = {
   courseContentName: string;
   courseContentIndex: number;
   videoFileName: string;
-  durationMinutes: 3;
+  durationMinutes: number;
+  points: number;
+  requirePayment: boolean;
 };
 
 export type Author = {
@@ -76,6 +86,9 @@ export type CourseResponse = {
   studentEnrolled: number | undefined;
   category: CategoryResponse;
   author: Author;
+  price: number;
+  courseAvailability: CourseAvailability;
+  isAccessible: boolean;
   contents: Content[];
 };
 
@@ -97,5 +110,7 @@ export type CourseProgressResponse = {
   completedCourseContentCount: number;
   contentProgresses: ContentProgress[];
 };
+
+export type CourseAvailability = "FREE" | "PAID" | "PARTIAL";
 
 export default Course;

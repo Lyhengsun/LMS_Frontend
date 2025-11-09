@@ -30,7 +30,7 @@ export const getCourseForStudentService = async (
     concatenatedUrl += `&name=${name}`;
   }
   if (categoryId != undefined) {
-    concatenatedUrl += `&categoryId=${categoryId}`
+    concatenatedUrl += `&categoryId=${categoryId}`;
   }
   if (level != undefined) {
     concatenatedUrl += `&level=${level}`;
@@ -67,6 +67,9 @@ export const getCourseForStudentService = async (
         level: i.level,
         category: i.category.name,
         thumbnail: i.courseImageName,
+        price: i.price,
+        courseAvailability: i.courseAvailability,
+        isAccessible: i.isAccessible,
         students: i.studentEnrolled ?? 0,
         lessons: i.contents.map((i) => {
           const mappedLesson: Lesson = {
@@ -76,6 +79,8 @@ export const getCourseForStudentService = async (
             videoUrl: i.videoFileName,
             isCompleted: false,
             index: i.courseContentIndex,
+            points: i.points,
+            requirePayment: i.requirePayment
           };
           return mappedLesson;
         }),
@@ -105,7 +110,7 @@ export const getCourseByAuthorService = async (
     concatenatedUrl += `&name=${name}`;
   }
   if (categoryId != undefined) {
-    concatenatedUrl += `&categoryId=${categoryId}`
+    concatenatedUrl += `&categoryId=${categoryId}`;
   }
   if (level != undefined) {
     concatenatedUrl += `&level=${level}`;
@@ -146,6 +151,9 @@ export const getCourseByAuthorService = async (
         isApproved: i.isApproved,
         isRejected: i.isRejected,
         isSubmitted: i.isSubmitted,
+        price: i.price,
+        courseAvailability: i.courseAvailability,
+        isAccessible: i.isAccessible,
         createdAt: i.createdAt,
         lessons: i.contents.map((i) => {
           const mappedLesson: Lesson = {
@@ -155,6 +163,8 @@ export const getCourseByAuthorService = async (
             videoUrl: i.videoFileName,
             isCompleted: false,
             index: i.courseContentIndex,
+            points: i.points,
+            requirePayment: i.requirePayment
           };
           return mappedLesson;
         }),
@@ -190,6 +200,9 @@ export const getCourseByIdService = async (courseId: number) => {
       category: data.category.name,
       thumbnail: data.courseImageName,
       students: data.studentEnrolled ?? 0,
+      price: data.price,
+      courseAvailability: data.courseAvailability,
+      isAccessible: data.isAccessible,
       lessons: data.contents
         .sort((a, b) => b.courseContentIndex - a.courseContentIndex)
         .map((i) => {
@@ -200,6 +213,8 @@ export const getCourseByIdService = async (courseId: number) => {
             videoUrl: i.videoFileName,
             isCompleted: false,
             index: i.courseContentIndex,
+            points: i.points,
+            requirePayment: i.requirePayment
           };
           return mappedLesson;
         }),
@@ -232,6 +247,9 @@ export const getAuthorCourseByIdService = async (courseId: number) => {
       category: data.category.name,
       thumbnail: data.courseImageName,
       students: data.studentEnrolled ?? 0,
+        price: data.price,
+      courseAvailability: data.courseAvailability,
+      isAccessible: data.isAccessible,
       lessons: data.contents
         .sort((a, b) => b.courseContentIndex - a.courseContentIndex)
         .map((i) => {
@@ -242,6 +260,8 @@ export const getAuthorCourseByIdService = async (courseId: number) => {
             videoUrl: i.videoFileName,
             isCompleted: false,
             index: i.courseContentIndex,
+            points: i.points,
+            requirePayment: i.requirePayment
           };
           return mappedLesson;
         }),
@@ -389,6 +409,9 @@ export const getCourseForAdminService = async (
         isApproved: i.isApproved,
         isRejected: i.isRejected,
         isSubmitted: i.isSubmitted,
+        price: i.price,
+        courseAvailability: i.courseAvailability,
+        isAccessible: i.isAccessible,
         createdAt: i.createdAt,
         lessons: i.contents.map((i) => {
           const mappedLesson: Lesson = {
@@ -398,6 +421,8 @@ export const getCourseForAdminService = async (
             videoUrl: i.videoFileName,
             isCompleted: false,
             index: i.courseContentIndex,
+            points: i.points,
+            requirePayment: i.requirePayment
           };
           return mappedLesson;
         }),
@@ -437,6 +462,9 @@ export const getCourseForAdminByIdService = async (courseDraftId: number) => {
       isRejected: data.isRejected,
       students: 0,
       createdAt: data.createdAt,
+      price: data.price,
+      courseAvailability: data.courseAvailability,
+      isAccessible: data.isAccessible,
       isSubmitted: data.isSubmitted,
       lessons: data.contents
         .sort((a, b) => b.courseContentIndex - a.courseContentIndex)
@@ -448,6 +476,8 @@ export const getCourseForAdminByIdService = async (courseDraftId: number) => {
             videoUrl: i.videoFileName,
             isCompleted: false,
             index: i.courseContentIndex,
+            points: i.points,
+            requirePayment: i.requirePayment
           };
           return mappedLesson;
         }),
@@ -478,6 +508,9 @@ export const approveCourseForAdminService = async (courseDraftId: number) => {
       category: data.category.name,
       thumbnail: data.courseImageName,
       students: data.studentEnrolled ?? 0,
+      price: data.price,
+      courseAvailability: data.courseAvailability,
+      isAccessible: data.isAccessible,
       lessons: data.contents
         .sort((a, b) => b.courseContentIndex - a.courseContentIndex)
         .map((i) => {
@@ -488,6 +521,8 @@ export const approveCourseForAdminService = async (courseDraftId: number) => {
             videoUrl: i.videoFileName,
             isCompleted: false,
             index: i.courseContentIndex,
+            points: i.points,
+            requirePayment: i.requirePayment
           };
           return mappedLesson;
         }),
@@ -568,6 +603,9 @@ export const submitDraftCourseForInstructorService = async (
       isRejected: data.isRejected,
       isSubmitted: data.isSubmitted,
       students: 0,
+      price: data.price,
+      courseAvailability: data.courseAvailability,
+      isAccessible: data.isAccessible,
       createdAt: data.createdAt,
       lessons: data.contents
         .sort((a, b) => b.courseContentIndex - a.courseContentIndex)
@@ -579,6 +617,8 @@ export const submitDraftCourseForInstructorService = async (
             videoUrl: i.videoFileName,
             isCompleted: false,
             index: i.courseContentIndex,
+            points: i.points,
+            requirePayment: i.requirePayment
           };
           return mappedLesson;
         }),
