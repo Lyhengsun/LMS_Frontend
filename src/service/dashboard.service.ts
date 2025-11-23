@@ -9,10 +9,12 @@ import {
   InstructorStatsData,
   QuizDistribution,
   QuizOverview,
+  StudentCourseProgressForInstructorDashboard,
   StudentLearningInsight,
   StudentSummaryStats,
 } from "../type/Dashboard";
 import { Pagination } from "../type/Pagination";
+import { ur } from "zod/v4/locales";
 
 export const getSummaryStatsForStudentService = async () => {
   const url = `${process.env.BASE_API_URL}/students/dashboard/summary-stat`;
@@ -154,20 +156,56 @@ export const getQuizPerformanceForInstructorDashboardService = async () => {
   }
 };
 
-export const getQuizAttemptsOverTimeForInstructorDashboardService = async (days : number) => {
+export const getQuizAttemptsOverTimeForInstructorDashboardService = async (
+  days: number
+) => {
   const url = `${process.env.BASE_API_URL}/instructors/dashboard/quiz-attempts-over-time?days=${days}`;
   const header = await headerToken();
 
   try {
     const res = await fetch(url, {
-      headers: header as HeadersInit
-    })
-    const data : ApiResponse<{
-      dailyAttempts: DailyAttempt[]
+      headers: header as HeadersInit,
+    });
+    const data: ApiResponse<{
+      dailyAttempts: DailyAttempt[];
     }> = await res.json();
 
     return data;
   } catch (error) {
     console.log(error);
   }
-}
+};
+
+export const getStudentCourseProgressForInstructorDashboardByCourseIdService =
+  async (
+    courseId: number,
+    page: number = 1,
+    size: number = 10,
+    name: string | undefined = undefined
+  ) => {
+    const header = await headerToken();
+    const url = `${process.env.BASE_API_URL}/instructors/dashboard/courses/${courseId}/student-course-progresses?page=${page}&size=${size}`;
+    let concatenatedUrl = url;
+    if (name != undefined && name.trim() != "") {
+      concatenatedUrl = concatenatedUrl + `&name=${name}`;
+    }
+
+    try {
+      const res = await fetch(concatenatedUrl, {
+        headers: header as HeadersInit,
+      });
+      const data = await res.json();
+
+      const { items, pagination } = data.payload as {
+        items: StudentCourseProgressForInstructorDashboard[];
+        pagination: Pagination;
+      };
+
+      return { items, pagination };
+    } catch (error) {
+      console.log(
+        "getStudentCourseProgressForInstructorDashboardByCourseIdService error: ",
+        error
+      );
+    }
+  };

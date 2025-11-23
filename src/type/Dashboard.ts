@@ -72,3 +72,11 @@ export type QuizDistribution = {
   passed: number;
   failed: number;
 };
+
+export type StudentCourseProgressForInstructorDashboard = {
+  id: number;
+  fullName: string;
+  email: string;
+  progressInPercentage: number;
+  enrolledDate: string;
+};

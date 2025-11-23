@@ -6,13 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ArrowLeft, Mail, BarChart3, Download } from "lucide-react";
 import Link from "next/link";
-
-// Mock data - in a real app, this would come from a database based on the course ID
-const courseData = {
-  id: 1,
-  title: "React Development",
-  totalStudents: 89,
-};
+import Course from "@/src/type/Course";
 
 const students = [
   {
@@ -77,7 +71,11 @@ const students = [
   },
 ];
 
-export default function DashboardCourseStudentPageComponent() {
+export default function DashboardCourseStudentPageComponent({
+  courseData
+} : {
+  courseData : Course
+}) {
   return (
     <main className="flex-1">
       <div className="p-6 lg:p-8">
@@ -95,7 +93,7 @@ export default function DashboardCourseStudentPageComponent() {
                 {courseData.title}
               </h1>
               <p className="text-muted-foreground mt-1">
-                Manage and track your {courseData.totalStudents} enrolled
+                Manage and track your {courseData.students} enrolled
                 students
               </p>
             </div>
@@ -107,11 +105,11 @@ export default function DashboardCourseStudentPageComponent() {
         </div>
 
         {/* Students List */}
-            <div className="space-y-4">
+            <div className="gap-4 grid grid-cols-3">
               {students.map((student) => (
                 <div
                   key={student.id}
-                  className="flex flex-col bg-white sm:flex-row sm:items-center justify-between gap-4 rounded-lg border border-border p-4 hover:bg-accent/50 hover:border-gray-500 transition-colors"
+                  className="flex flex-col bg-white sm:flex-row sm:items-center justify-between gap-4 rounded-lg border border-border p-4 hover:bg-accent/50 hover:border-gray-500 transition-colors h-28"
                 >
                   <div className="flex items-center gap-4 flex-1">
                     <Avatar className="h-12 w-12">
@@ -134,18 +132,6 @@ export default function DashboardCourseStudentPageComponent() {
                         {student.email}
                       </p>
                       <div className="flex items-center gap-3 mt-2 flex-wrap">
-                        <Badge
-                          className={
-                            student.status === "Active"
-                              ? "bg-green-100 text-green-800"
-                              : student.status === "At Risk"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-blue-100 text-blue-800"
-                          }
-                          variant="secondary"
-                        >
-                          {student.status}
-                        </Badge>
                         <span className="text-xs text-muted-foreground">
                           Enrolled: {student.enrolledDate}
                         </span>
@@ -163,12 +149,6 @@ export default function DashboardCourseStudentPageComponent() {
                       <div className="text-xs text-muted-foreground">
                         Progress
                       </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm">
-                        <BarChart3 className="h-4 w-4 mr-1" />
-                        View Progress
-                      </Button>
                     </div>
                   </div>
                 </div>

@@ -4,8 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { getUserRole } from "@/src/lib/utils";
-import { Eye, EyeOff, Shield, UserIcon, Plus, Camera } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Shield,
+  UserIcon,
+  Plus,
+  Camera,
+  Banknote,
+} from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
@@ -29,7 +36,10 @@ import { Form } from "@/components/ui/form";
 import CustomFormField from "./CustomFormField";
 import CustomTextFormField from "./CustomTextFormField";
 import { uploadImageAction } from "@/src/action/fileAction";
-import { updateCurrentUserProfileAction } from "@/src/action/userAction";
+import {
+  updateBakongAccountIdForInstructorAction,
+  updateCurrentUserProfileAction,
+} from "@/src/action/userAction";
 
 const UserProfilePageComponent = ({ currentUser }: { currentUser: User }) => {
   const [currentUserState, setCurrentUserState] = useState<User | null>(
@@ -38,7 +48,12 @@ const UserProfilePageComponent = ({ currentUser }: { currentUser: User }) => {
 
   console.log("[Profile Page] Current User State: ", currentUserState);
 
-  const userRole = getUserRole();
+  const userRole =
+    currentUser.role == "ROLE_ADMIN"
+      ? "admin"
+      : currentUser.role == "ROLE_INSTRUCTOR"
+      ? "instructor"
+      : "student";
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -49,6 +64,11 @@ const UserProfilePageComponent = ({ currentUser }: { currentUser: User }) => {
   const [showResetNewPassword, setShowResetNewPassword] = useState(false);
   const [showResetConfirmPassword, setShowResetConfirmPassword] =
     useState(false);
+  const [isBakongAccountDialogOpen, setIsBakongAccountDialogOpen] =
+    useState(false);
+  const [bakongAccountIdState, setBakongAccountIdState] = useState<
+    string | null
+  >(currentUserState?.bakongAccountId || null);
 
   const [profileData, setProfileData] = useState({
     phone: currentUserState?.phoneNumber,
@@ -272,6 +292,21 @@ const UserProfilePageComponent = ({ currentUser }: { currentUser: User }) => {
     setIsResetPasswordDialogOpen(false);
   };
 
+  const handleBakongAccountId = async () => {
+    const bakongAccountRes = await updateBakongAccountIdForInstructorAction(
+      bakongAccountIdState!
+    );
+    if (bakongAccountRes.success) {
+      toast.success("Update Bakong ID Successfully");
+      setIsBakongAccountDialogOpen(false);
+    } else {
+      toast.error(
+        (bakongAccountRes.message as string) ||
+          "Failed to update bakong account id"
+      );
+    }
+  };
+
   const getRoleColor = () => {
     switch (userRole) {
       case "student":
@@ -417,6 +452,66 @@ const UserProfilePageComponent = ({ currentUser }: { currentUser: User }) => {
               </Card>
             </form>
           </Form>
+
+          {/* Bakong Account Setting */}
+          {userRole == "instructor" && (
+            <Card>
+              <CardContent>
+                {/* Header Section */}
+                <div className="flex items-start justify-between mb-6">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1">
+                      <Banknote
+                        className="w-6 h-6"
+                        style={{ color: getRoleColor() }}
+                      />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-semibold text-gray-900">
+                        Bakong Account Setting
+                      </h2>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Manage your bakong account id
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bakong Account Options */}
+                <div className="space-y-4">
+                  {/* Bakong Account Options */}
+                  <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: `${getRoleColor()}20` }}
+                      >
+                        <Banknote
+                          className="w-5 h-5"
+                          style={{ color: getRoleColor() }}
+                        />
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-gray-900">
+                          Bakong Account ID
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          Add or update your Bakong ID for payment features
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => setIsBakongAccountDialogOpen(true)}
+                      variant="outline"
+                      className="ml-4"
+                    >
+                      Manage
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Security Settings */}
           <Card>
@@ -730,6 +825,63 @@ const UserProfilePageComponent = ({ currentUser }: { currentUser: User }) => {
               style={{ backgroundColor: getRoleColor() }}
             >
               Reset Password
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bakong Account Dialog */}
+      <Dialog
+        open={isBakongAccountDialogOpen}
+        onOpenChange={setIsBakongAccountDialogOpen}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Bakong Account ID</DialogTitle>
+            <DialogDescription>
+              Set or update the bakong account id for your account.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="reset-email" className="mb-2">
+                Bakong Account ID
+              </Label>
+              <Input
+                id="bakong-account-id"
+                type="text"
+                defaultValue={bakongAccountIdState || ""}
+                onChange={(e) => setBakongAccountIdState(e.target.value)}
+                placeholder="Enter your bakong account id"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setBakongAccountIdState(
+                  currentUserState?.bakongAccountId || null
+                );
+                setIsBakongAccountDialogOpen(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (
+                  bakongAccountIdState == null ||
+                  bakongAccountIdState.trim() == ""
+                ) {
+                  toast.error("Bakong Account ID can't be empty");
+                } else {
+                  handleBakongAccountId();
+                }
+              }}
+              style={{ backgroundColor: getRoleColor() }}
+            >
+              Save
             </Button>
           </DialogFooter>
         </DialogContent>

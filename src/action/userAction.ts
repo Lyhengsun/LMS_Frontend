@@ -7,6 +7,7 @@ import {
   disableUserByIdService,
   getAllUserForAdminService,
   getCurrentUserService,
+  updateBakongAccountIdForInstructorService,
   updateCurrentUserProfileService,
 } from "../service/user.service";
 import User, { UpdateProfileRequest } from "../type/User";
@@ -73,17 +74,38 @@ export const disableUserByIdAction = async (
 export const getCurrentUserAction = async () => {
   try {
     const data = await getCurrentUserService();
-    return { success: true, data: data};
+    return { success: true, data: data };
   } catch (error) {
-    return { success: false, message: error};
+    return { success: false, message: error };
   }
 };
 
-export const updateCurrentUserProfileAction = async (imageUrl: string | null, request : UpdateProfileRequest) => {
+export const updateCurrentUserProfileAction = async (
+  imageUrl: string | null,
+  request: UpdateProfileRequest
+) => {
   try {
     const data = await updateCurrentUserProfileService(imageUrl, request);
-    return {success: true, data: data};
+    revalidateTag("currentUser");
+    return { success: true, data: data };
   } catch (error) {
-    return {success: false, message: error};
+    return { success: false, message: error };
   }
-}
+};
+
+export const updateBakongAccountIdForInstructorAction = async (
+  bakongAccountId: string
+) => {
+  try {
+    const data = await updateBakongAccountIdForInstructorService(
+      bakongAccountId
+    );
+    if (data?.success) {
+      revalidateTag("currentUser");
+      return { success: true, data: data?.payload };
+    }
+    return { success: false, message: data?.message || data?.detail };
+  } catch (error) {
+    return { success: false, message: error };
+  }
+};

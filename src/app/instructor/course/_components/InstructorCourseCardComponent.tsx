@@ -120,19 +120,12 @@ const InstructorCourseCardComponent = ({
                 setCourseThumbnail("/images/no-image.jpg");
               }}
             />
-
           </div>
           {/* Status badge overlay */}
           <div className="absolute top-2 right-2 flex space-x-2">
-            <div>
-            {getStatusBadge()}
-            </div>
-            <div>
-
-              {getAvailabilityBadge()}
-            </div>
-            </div>
-
+            <div>{getStatusBadge()}</div>
+            <div>{getAvailabilityBadge()}</div>
+          </div>
         </div>
         <Card
           key={course.id}
@@ -151,6 +144,11 @@ const InstructorCourseCardComponent = ({
             </div>
           </CardHeader>
           <CardContent>
+            <div className="text-xl font-semibold mt-[-20px] mb-2">
+              {course.courseAvailability == "FREE"
+                ? "Free"
+                : `$${course.price.toFixed(2)}`}
+            </div>
             <div className="space-y-4 mb-2">
               <div className="flex items-center justify-between text-sm text-gray-600">
                 {/* <div className="flex items-center space-x-1">

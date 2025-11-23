@@ -1,4 +1,5 @@
 import headerToken from "../app/api/headerToken";
+import ApiResponse from "../type/ApiResponse";
 import User, { UpdateProfileRequest } from "../type/User";
 
 export const getAllUserForAdminService = async (
@@ -123,3 +124,18 @@ export const updateCurrentUserProfileService = async (
     console.log("updateCurrentUserProfileService error: ", error);
   }
 };
+
+export const updateBakongAccountIdForInstructorService = async (bakongAccountId : string) => {
+  const header = await headerToken();
+  const url = `${process.env.BASE_API_URL}/instructors/app-users/bakong-account/${bakongAccountId}`
+  try {
+    const res = await fetch(url, {
+      headers: header as HeadersInit,
+      method: "POST",
+    })
+    const data : ApiResponse<User> = await res.json();
+    return data;
+  } catch (error) {
+    console.log("updateBakongAccountIdForInstructorService error: ", error);
+  }
+}

@@ -17,8 +17,18 @@ export function InstructorCourseDashboardComponent() {
   const [page, setPage] = useState(1);
   const [maxPage, setMaxPage] = useState(1);
 
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
   const loadCourses = async () => {
-    const coursesRes = await getInstructorCoursesAction(page, 5);
+    const coursesRes = await getInstructorCoursesAction(page, 6);
     if (coursesRes.success) {
       setCourses(coursesRes.data?.items!);
       setMaxPage(coursesRes.data?.pagination.totalPages!);

@@ -1,6 +1,13 @@
 "use client";
 import React from "react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Legend,
+  Tooltip,
+} from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface QuizPerformanceData {
@@ -23,7 +30,7 @@ export function QuizPerformancePieChart({
   const data: QuizPerformanceData[] = [
     { name: "Pass", value: passCount, color: "#22c55e" },
     { name: "Fail", value: failCount, color: "#ef4444" },
-  ].filter(item => item.value > 0);
+  ].filter((item) => item.value > 0);
 
   const total = passCount + failCount;
   const passRate = total > 0 ? ((passCount / total) * 100).toFixed(1) : "0";
@@ -31,20 +38,20 @@ export function QuizPerformancePieChart({
   return (
     <Card>
       <CardContent>
-        <div className="text-xl font-semibold">
-          Quiz Performance 
-        </div>
+        <div className="text-xl font-semibold">Quiz Performance</div>
         {total > 0 ? (
           <>
             <ResponsiveContainer width="100%" height={400}>
-              <PieChart>
+              <PieChart className="font-semibold">
                 <Pie
                   data={data}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
+                  label={({ name, percent }) =>
+                    `${(percent * 100).toFixed(0)}%`
+                  }
+                  outerRadius={100}
                   fill="#8884d8"
                   dataKey="value"
                 >

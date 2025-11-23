@@ -120,18 +120,19 @@ const CourseCardComponent = ({
           className="hover:shadow-lg transition-shadow rounded-t-none pt-3 flex flex-col justify-between flex-1"
         >
           <CardHeader>
-            <div className="flex items-start justify-between">
+            <div className="flex  items-start justify-between">
               <div className="flex-1">
-                <CardTitle className="text-lg mb-2 line-clamp-2">
+                <CardTitle className="text-lg mb-0 line-clamp-2">
                   {course.title}
                 </CardTitle>
-                <p className="text-sm text-gray-600 h-10 line-clamp-2  ">
-                  {course.description}
+                <p className="text-sm text-gray-600 line-clamp-1 mb-2">
+                  {course.instructor}
                 </p>
               </div>
             </div>
           </CardHeader>
           <CardContent>
+                <div className="text-xl font-semibold mt-[-20px] mb-2">{course.courseAvailability == "FREE" ? "Free" : `$${course.price.toFixed(2)}`}</div>
             <div className="space-y-4 mb-2">
               <div className="flex items-center justify-between text-sm text-gray-600">
                 <div className="flex items-center space-x-1">
