@@ -1,5 +1,7 @@
 import headerToken from "../app/api/headerToken";
+import ApiResponse from "../type/ApiResponse";
 import { RegisterData } from "../type/AuthData";
+import User from "../type/User";
 
 export const registerService = async (
     registerData : RegisterData
@@ -122,14 +124,13 @@ export const getCurrentUser = async () => {
   const header = await headerToken();
   try {
     // since headerToken is an async function that why we need to use await
-    const res = await fetch(`${process.env.BASE_API_URL}/app_users`,
+    const res = await fetch(`${process.env.BASE_API_URL}/app-users`,
       {
         headers: header as any
       }
     );
 
-    const data = await res.json();
-    console.log('getCurrentUser data: ', data);
+    const data : ApiResponse<User> = await res.json();
     return data;
   } catch (e) {
     console.log(e);

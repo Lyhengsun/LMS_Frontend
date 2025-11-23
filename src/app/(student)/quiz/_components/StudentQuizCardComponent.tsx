@@ -35,23 +35,28 @@ const StudentQuizCardComponent = ({
 
   return (
     <Card key={quiz.id} className="p-6 w-full">
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between gap-x-2">
         <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            <h3 className="text-xl font-semibold text-foreground">
+          <div className="flex items-start gap-3 mb-2">
+            <h3 className="text-xl font-semibold text-foreground line-clamp-1 text-ellipsis">
               {quiz.quizName}
             </h3>
             <Badge
               variant="outline"
-              className="bg-blue-100 text-blue-800 border-blue-200"
+              className="bg-blue-100 text-blue-800 border-blue-200 mt-1"
             >
               {quiz.category.name}
             </Badge>
-            <Badge variant="outline" className={getLevelColor(quiz.level)}>
+            <Badge
+              variant="outline"
+              className={`${getLevelColor(quiz.level)} mt-1`}
+            >
               {quiz.level}
             </Badge>
           </div>
-          <p className="text-muted-foreground mb-4 h-12 line-clamp-2 overflow-ellipsis">{quiz.quizDescription}</p>
+          <p className="text-muted-foreground mb-4 h-12 line-clamp-2 text-ellipsis">
+            {quiz.quizDescription}
+          </p>
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <HelpCircle className="h-4 w-4" />
@@ -69,7 +74,14 @@ const StudentQuizCardComponent = ({
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col items-center gap-2">
+          {quiz.attemptCount < quiz.maxAttempts ? (
+            <Button onClick={() => handleOnTakeQuiz(quiz.id)}>
+              {quiz.attemptCount > 0 ? "Retake Quiz" : "Take Quiz"}
+            </Button>
+          ) : (
+            <Button disabled>No Attempts Left</Button>
+          )}
           {quiz.attemptCount > 0 && (
             <Button
               variant="outline"
@@ -77,13 +89,6 @@ const StudentQuizCardComponent = ({
             >
               View Results
             </Button>
-          )}
-          {quiz.attemptCount < quiz.maxAttempts ? (
-            <Button onClick={() => handleOnTakeQuiz(quiz.id)}>
-              {quiz.attemptCount > 0 ? "Retake Quiz" : "Take Quiz"}
-            </Button>
-          ) : (
-            <Button disabled>No Attempts Left</Button>
           )}
         </div>
       </div>

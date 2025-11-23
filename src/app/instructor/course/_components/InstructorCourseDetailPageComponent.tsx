@@ -11,10 +11,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EnhancedVideoPlayer } from "@/src/components/EnhancedVideoPlayer";
 import { LessonResources } from "@/src/components/LessonResources";
 import Course, { Lesson } from "@/src/type/Course";
-import { ArrowLeft, BookOpen, Clock, PlayCircle, Plus } from "lucide-react";
+import {
+  ArrowLeft,
+  BookOpen,
+  Clock,
+  PlayCircle,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import CreateCourseContentFormComponent from "./CreateCourseContentFormComponent";
+import CustomYesNoPopUp from "@/src/app/_components/CustomYesNoPopUp";
+import { deleteCourseContentByIdAction } from "@/src/action/courseAction";
+import { toast } from "sonner";
 
 const InstructorCourseDetailPageComponent = ({
   selectedCourse,
@@ -23,6 +33,9 @@ const InstructorCourseDetailPageComponent = ({
   selectedCourse: Course;
   mode?: "view" | "edit";
 }) => {
+  const [selectedDeleteCourseContentId, setSelectedDeleteCourseContentId] =
+    useState<null | number>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isAddLessonDialogOpen, setIsAddLessonDialogOpen] = useState(false);
   const [isSubmittingContent, setIsSubmittingContent] = useState(false);
   const sortedLessons = selectedCourse.lessons.sort(
@@ -32,6 +45,29 @@ const InstructorCourseDetailPageComponent = ({
     sortedLessons.length > 0 ? sortedLessons[0] : null
   );
   const router = useRouter();
+
+  // Actual delete action after confirmation
+  const onDeleteConfirm = async () => {
+    if (selectedDeleteCourseContentId === null) return;
+
+    const deletedCourseContentRes = await deleteCourseContentByIdAction(
+      selectedDeleteCourseContentId
+    );
+    if (deletedCourseContentRes.success) {
+      // Reset to page 1 and reload courses
+      toast.success("Deleted Course successfully");
+    } else {
+      toast.error("Failed to delete the course", {
+        description: deletedCourseContentRes.message as string,
+      });
+    }
+  };
+
+  // Handler to show delete confirmation
+  const handleDeleteClick = (courseContentId: number) => {
+    setSelectedDeleteCourseContentId(courseContentId);
+    setDeleteDialogOpen(true);
+  };
 
   return (
     <div className="flex flex-1">
@@ -200,8 +236,23 @@ const InstructorCourseDetailPageComponent = ({
                           </span>
                         </div>
                       </div>
-                      {isCurrent && (
+                      {mode != "edit" && isCurrent && (
                         <PlayCircle className="w-5 h-5 text-purple-500" />
+                      )}
+                      {mode == "edit" && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600 hover:text-red-800"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleDeleteClick(lesson.id);
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          Delete
+                        </Button>
                       )}
                     </div>
                   </div>
@@ -243,6 +294,15 @@ const InstructorCourseDetailPageComponent = ({
           </div>
         </div>
       </div>
+
+      <CustomYesNoPopUp
+        title="Delete Lesson"
+        description="Are you sure you want to delete this lesson? This action cannot be undone."
+        viewDialogOpenState={deleteDialogOpen}
+        setViewDialogOpenState={setDeleteDialogOpen}
+        onClickYes={onDeleteConfirm}
+        onClickNo={() => setSelectedDeleteCourseContentId(null)}
+      />
     </div>
   );
 };

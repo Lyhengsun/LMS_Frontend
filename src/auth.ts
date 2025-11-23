@@ -25,7 +25,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           Authorization: `Bearer ${payload.token}`,
         };
         try {
-          const res = await fetch(`${process.env.BASE_API_URL}/app_users`, {
+          const res = await fetch(`${process.env.BASE_API_URL}/app-users`, {
             headers: header,
           });
 

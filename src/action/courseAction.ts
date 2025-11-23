@@ -7,6 +7,7 @@ import {
   createCourseContentService,
   createCourseService,
   deleteCourseByIdService,
+  deleteCourseContentByIdService,
   getCourseByAuthorService,
   getCourseForAdminService,
   getCourseForStudentService,
@@ -81,7 +82,7 @@ export const createCourseAction = async (
       revalidateTag("authorCourses");
       return { success: true, data: courseData!.payload };
     }
-    return { success: false, message: courseData?.message };
+    return { success: false, message: courseData?.message || courseData?.detail};
   } catch (error) {
     // console.log("createCourseAction error : ", error);
     return { success: false, message: error };
@@ -105,7 +106,7 @@ export const createCourseContentAction = async (
       revalidateTag("authorCourse");
       return { success: true, data: courseContentData!.payload };
     }
-    return { success: false, message: courseContentData?.message };
+    return { success: false, message: courseContentData?.message || courseContentData?.detail};
   } catch (error) {
     // console.log("createCourseAction error : ", error);
     return { success: false, message: error };
@@ -125,6 +126,21 @@ export const deleteCourseByIdAction = async (courseId: number) => {
     return { success: false, message: error };
   }
 };
+
+export const deleteCourseContentByIdAction = async (courseContentId: number) => {
+  try {
+    const courseContentDeletedData = await deleteCourseContentByIdService(courseContentId);
+    // console.log("courseDeletedData : ", courseDeletedData);
+    if (courseContentDeletedData?.success) {
+      revalidateTag("authorCourse");
+      return { success: true, message: courseContentDeletedData.message };
+    }
+    return { success: false, message: courseContentDeletedData?.message || courseContentDeletedData?.detail };
+  } catch (error) {
+    return { success: false, message: error };
+  }
+};
+
 
 export const joinCourseByCourseIdAction = async (courseId: number) => {
   try {

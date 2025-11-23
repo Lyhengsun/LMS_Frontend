@@ -52,7 +52,7 @@ export function InstructorCourseDashboardComponent() {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="space-y-4 grid grid-cols-2">
+        <div className="space-x-4 space-y-4 grid grid-cols-2">
         {courses.map((course) => (
           <div
             key={course.courseId}

@@ -4,16 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
 import { getUserRole } from "@/src/lib/utils";
-import { Eye, EyeOff, Shield, UserIcon } from "lucide-react";
+import { Eye, EyeOff, Shield, UserIcon, Plus, Camera } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { useUserStore } from "@/src/store/useUserStore";
-import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Camera } from "lucide-react";
 import { uploadImageService } from "@/src/service/file.service";
 import User from "@/src/type/User";
 import {
@@ -24,23 +21,22 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useForm } from "react-hook-form";
+import z from "zod";
+import { updateProfileSchema } from "@/src/lib/zod/userSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form } from "@/components/ui/form";
+import CustomFormField from "./CustomFormField";
+import CustomTextFormField from "./CustomTextFormField";
+import { uploadImageAction } from "@/src/action/fileAction";
+import { updateCurrentUserProfileAction } from "@/src/action/userAction";
 
-const UserProfilePageComponent = () => {
-  const fetchCurrentUser = useUserStore((state) => state.fetchCurrentUser);
-  const [currentUser, setCurrentUser] = useState<User | null>(
-    useUserStore((state) => state.currentUser)
+const UserProfilePageComponent = ({ currentUser }: { currentUser: User }) => {
+  const [currentUserState, setCurrentUserState] = useState<User | null>(
+    currentUser
   );
 
-  // useEffect(() => {
-  //   fetchCurrentUser();
-  //   const loadUser = () => {
-  //     const loadedUser = useUserStore((state) => state.currentUser);
-  //     setCurrentUser(loadedUser);
-  //   };
-  //   if (currentUser == null) {
-  //     loadUser();
-  //   }
-  // }, []);
+  console.log("[Profile Page] Current User State: ", currentUserState);
 
   const userRole = getUserRole();
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -55,23 +51,39 @@ const UserProfilePageComponent = () => {
     useState(false);
 
   const [profileData, setProfileData] = useState({
-    fullName: currentUser?.fullName,
-    email: currentUser?.email,
-    phone: currentUser?.phoneNumber,
-    bio: currentUser?.bio ?? "",
-    avatarUrl: currentUser?.avatarUrl ?? "",
+    phone: currentUserState?.phoneNumber,
+    bio: currentUserState?.bio ?? "",
+    avatarUrl: currentUserState?.avatarUrl ?? "",
   });
 
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
-
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [securitySettings, setSecuritySettings] = useState({
     twoFactorAuth: false,
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
+
+  const form = useForm<z.infer<typeof updateProfileSchema>>({
+    resolver: zodResolver(updateProfileSchema),
+    defaultValues: {
+      bio: currentUserState?.bio || "",
+      phoneNumber: currentUserState?.phoneNumber || "",
+    },
+  });
+
+  const watchedPhone = form.watch("phoneNumber");
+  const watchedBio = form.watch("bio");
+
+  useEffect(() => {
+    const phoneDifferent =
+      (watchedPhone || "") !== (currentUserState?.phoneNumber || "");
+    const bioDifferent = (watchedBio || "") !== (currentUserState?.bio || "");
+    setIsUpdatingProfile(phoneDifferent || bioDifferent);
+  }, [watchedPhone, watchedBio, currentUserState]);
 
   const [resetPasswordData, setResetPasswordData] = useState({
     email: "",
@@ -99,6 +111,7 @@ const UserProfilePageComponent = () => {
       }
 
       setSelectedImage(file);
+      setIsUpdatingProfile(true);
 
       // Create preview URL
       const reader = new FileReader();
@@ -109,28 +122,27 @@ const UserProfilePageComponent = () => {
     }
   };
 
-  const handleSaveProfile = async () => {
+  const onSubmitProfile = async (
+    values: z.infer<typeof updateProfileSchema>
+  ) => {
     try {
-      setIsUploadingImage(true);
-
       // Upload image first if a new image is selected
+      let uploadedImageName: string | null = null;
       if (selectedImage) {
-        const uploadResponse = await uploadImageService(selectedImage);
+        setIsUploadingImage(true);
+        const uploadResponse = await uploadImageAction(selectedImage);
 
-        if (uploadResponse?.payload) {
+        if (uploadResponse?.success) {
           // Update profile data with new avatar URL
           setProfileData({
             ...profileData,
-            avatarUrl: uploadResponse.payload.fileUrl,
+            avatarUrl: uploadResponse.data?.fileName || "",
           });
 
           // Clear selected image and preview
           setSelectedImage(null);
           setImagePreview(null);
-
-          toast.success("Image Uploaded", {
-            description: "Profile picture has been updated successfully.",
-          });
+          uploadedImageName = uploadResponse.data?.fileName!;
         } else {
           toast.error("Upload Failed", {
             description: "Failed to upload profile picture.",
@@ -139,9 +151,24 @@ const UserProfilePageComponent = () => {
         }
       }
 
+      const res = await updateCurrentUserProfileAction(
+        uploadedImageName,
+        values
+      );
+      if (!res.success) {
+        throw new Error(res.message as string | "");
+      }
+
       // TODO: Save profile data to backend
       toast("Profile Updated", {
         description: "Your profile information has been saved successfully.",
+      });
+      const updatedUserData = res.data!;
+      setCurrentUserState(updatedUserData);
+      setProfileData({
+        phone: updatedUserData?.phoneNumber || "",
+        bio: updatedUserData?.bio || "",
+        avatarUrl: updatedUserData?.avatarUrl || "",
       });
     } catch (error) {
       toast.error("Error", {
@@ -149,7 +176,26 @@ const UserProfilePageComponent = () => {
       });
     } finally {
       setIsUploadingImage(false);
+      setIsUpdatingProfile(false);
+      setImagePreview(null);
+      setSelectedImage(null);
     }
+  };
+
+  const handleCancel = () => {
+    form.reset({
+      bio: currentUserState?.bio || "",
+      phoneNumber: currentUserState?.phoneNumber || "",
+    });
+    setSelectedImage(null);
+    setImagePreview(null);
+    setProfileData({
+      phone: currentUserState?.phoneNumber || "",
+      bio: currentUserState?.bio || "",
+      avatarUrl: currentUserState?.avatarUrl || "",
+    });
+    setIsUpdatingProfile(false);
+    setIsUploadingImage(false);
   };
 
   const handleChangePassword = () => {
@@ -259,137 +305,118 @@ const UserProfilePageComponent = () => {
       <main className="flex-1 p-8">
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Profile Settings */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <UserIcon
-                  className="w-5 h-5 mr-2"
-                  style={{ color: getRoleColor() }}
-                />
-                Profile Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Profile Picture Upload Section */}
-              <div className="flex flex-col items-center space-y-4">
-                <div className="relative">
-                  <Avatar className="w-32 h-32">
-                    <AvatarImage
-                      src={imagePreview || profileData.avatarUrl || ""}
-                      alt={profileData.fullName || "Profile picture"}
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmitProfile)}>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <UserIcon
+                      className="w-5 h-5 mr-2"
+                      style={{ color: getRoleColor() }}
                     />
-                    <AvatarFallback
-                      className="text-4xl"
-                      style={{
-                        backgroundColor: getRoleColor(),
-                        color: "white",
-                      }}
+                    Profile Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Profile Picture Upload Section */}
+                  <div className="flex flex-col items-center space-y-4">
+                    <div className="relative">
+                      <Avatar className="w-32 h-32">
+                        <AvatarImage
+                          src={
+                            imagePreview ||
+                            `${process.env.BASE_API_URL}/files/preview-file/${profileData.avatarUrl}` ||
+                            ""
+                          }
+                          className="object-cover"
+                          alt={currentUserState?.fullName || "Profile picture"}
+                        />
+                        <AvatarFallback
+                          className="text-4xl"
+                          style={{
+                            backgroundColor: getRoleColor(),
+                            color: "white",
+                          }}
+                        >
+                          {currentUserState?.fullName
+                            ?.charAt(0)
+                            .toUpperCase() || "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <label
+                        htmlFor="profile-image-upload"
+                        className="absolute bottom-0 right-0 p-2 rounded-full cursor-pointer transition-colors shadow-lg"
+                        style={{ backgroundColor: getRoleColor() }}
+                      >
+                        <Camera className="w-5 h-5 text-white" />
+                        <input
+                          id="profile-image-upload"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-lg font-medium text-gray-700">
+                        {currentUserState?.fullName || "User"}
+                      </p>
+                      <p className="text-md text-gray-500">
+                        {currentUserState?.email}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Click the camera icon to upload a new profile picture
+                      </p>
+                      {selectedImage && (
+                        <p className="text-xs text-green-600 mt-1">
+                          New image selected: {selectedImage.name}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="col-span-2">
+                      <CustomFormField
+                        control={form.control}
+                        fieldName="phoneNumber"
+                        label="Phone Number"
+                        placeholder="Enter your phone number"
+                      />
+                    </div>
+                  </div>
+
+                  <CustomTextFormField
+                    control={form.control}
+                    fieldName="bio"
+                    label="Bio"
+                    placeholder="Tell us about yourself"
+                  />
+
+                  <div className="flex gap-2">
+                    <Button
+                      type="submit"
+                      disabled={!isUploadingImage && !isUpdatingProfile}
+                      style={{ backgroundColor: getRoleColor() }}
                     >
-                      {profileData.fullName?.charAt(0).toUpperCase() || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <label
-                    htmlFor="profile-image-upload"
-                    className="absolute bottom-0 right-0 p-2 rounded-full cursor-pointer transition-colors shadow-lg"
-                    style={{ backgroundColor: getRoleColor() }}
-                  >
-                    <Camera className="w-5 h-5 text-white" />
-                    <input
-                      id="profile-image-upload"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-                <div className="text-center">
-                  <p className="text-sm font-medium text-gray-700">
-                    {profileData.fullName || "User"}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Click the camera icon to upload a new profile picture
-                  </p>
-                  {selectedImage && (
-                    <p className="text-xs text-green-600 mt-1">
-                      New image selected: {selectedImage.name}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <Separator />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <Input
-                    id="fullName"
-                    value={profileData.fullName}
-                    onChange={(e) =>
-                      setProfileData({
-                        ...profileData,
-                        fullName: e.target.value,
-                      })
-                    }
-                    placeholder="Enter your first name"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input
-                    id="phone"
-                    value={profileData.phone}
-                    onChange={(e) =>
-                      setProfileData({
-                        ...profileData,
-                        phone: e.target.value,
-                      })
-                    }
-                    placeholder="Enter your phone number"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="col-span-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={profileData.email}
-                    onChange={(e) =>
-                      setProfileData({
-                        ...profileData,
-                        email: e.target.value,
-                      })
-                    }
-                    placeholder="Enter your email"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="bio">Bio</Label>
-                <Textarea
-                  id="bio"
-                  value={profileData.bio}
-                  onChange={(e) =>
-                    setProfileData({ ...profileData, bio: e.target.value })
-                  }
-                  placeholder="Tell us about yourself"
-                />
-              </div>
-
-              <Button
-                onClick={handleSaveProfile}
-                disabled={isUploadingImage}
-                style={{ backgroundColor: getRoleColor() }}
-              >
-                {isUploadingImage ? "Uploading..." : "Save Profile"}
-              </Button>
-            </CardContent>
-          </Card>
+                      {isUploadingImage ? "Uploading..." : "Save Profile"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleCancel}
+                      disabled={!isUploadingImage && !isUpdatingProfile}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </form>
+          </Form>
 
           {/* Security Settings */}
           <Card>

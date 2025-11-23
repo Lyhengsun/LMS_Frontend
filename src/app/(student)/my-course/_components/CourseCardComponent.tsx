@@ -18,6 +18,7 @@ import {
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 
 const CourseCardComponent = ({
   course,
@@ -37,6 +38,23 @@ const CourseCardComponent = ({
   const [courseThumbnail, setCourseThumbnail] = useState(
     `${process.env.BASE_API_URL}/files/preview-file/${course.thumbnail}`
   );
+
+  const getAvailabilityBadge = () => {
+    const availabilityConfig = {
+      FREE: { label: "Free", className: "bg-green-500 hover:bg-green-600" },
+      PAID: { label: "Paid", className: "bg-purple-500 hover:bg-purple-600" },
+      PARTIAL: {
+        label: "Partial Access",
+        className: "bg-orange-500 hover:bg-orange-600",
+      },
+    };
+
+    const config = availabilityConfig[course.courseAvailability];
+    return (
+      <Badge className={`${config.className} text-white`}>{config.label}</Badge>
+    );
+  };
+
   const courseProgress = getCourseProgress(course.id);
   const handleViewCourse = (
     courseId: number,
@@ -78,6 +96,10 @@ const CourseCardComponent = ({
                 setCourseThumbnail("/images/no-image.jpg");
               }}
             />
+            {/* Availability Badge - Top Right */}
+            <div className="absolute top-2 right-2">
+              {getAvailabilityBadge()}
+            </div>
           </div>
 
           {/* {role == "student" && courseProgress.progressPercentage > 0 && (

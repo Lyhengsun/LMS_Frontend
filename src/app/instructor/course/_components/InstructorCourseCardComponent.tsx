@@ -35,6 +35,22 @@ const InstructorCourseCardComponent = ({
     `${process.env.BASE_API_URL}/files/preview-file/${course.thumbnail}`
   );
 
+  const getAvailabilityBadge = () => {
+    const availabilityConfig = {
+      FREE: { label: "Free", className: "bg-green-500 hover:bg-green-600" },
+      PAID: { label: "Paid", className: "bg-purple-500 hover:bg-purple-600" },
+      PARTIAL: {
+        label: "Partial Access",
+        className: "bg-orange-500 hover:bg-orange-600",
+      },
+    };
+
+    const config = availabilityConfig[course.courseAvailability];
+    return (
+      <Badge className={`${config.className} text-white`}>{config.label}</Badge>
+    );
+  };
+
   const handleViewCourse = (
     courseId: number,
     e: React.MouseEvent<HTMLButtonElement>
@@ -104,9 +120,19 @@ const InstructorCourseCardComponent = ({
                 setCourseThumbnail("/images/no-image.jpg");
               }}
             />
+
           </div>
           {/* Status badge overlay */}
-          <div className="absolute top-2 right-2">{getStatusBadge()}</div>
+          <div className="absolute top-2 right-2 flex space-x-2">
+            <div>
+            {getStatusBadge()}
+            </div>
+            <div>
+
+              {getAvailabilityBadge()}
+            </div>
+            </div>
+
         </div>
         <Card
           key={course.id}

@@ -78,6 +78,10 @@ const CreateCourseFormComponent = ({
     defaultValues: {
       courseName: "",
       courseDescription: "",
+      courseAvailability: "FREE",
+      courseCategoryId: categories[0].id.toString(),
+      level: "BEGINNER",
+      price: "0",
     },
   });
 
@@ -135,7 +139,7 @@ const CreateCourseFormComponent = ({
       toast.success("Created Course Successfully");
       onOpenChange(false);
     } else {
-      toast.error("Failed to create a new course");
+      toast.error( res.message as string || "Failed to create a new course");
     }
   };
 
@@ -228,14 +232,28 @@ const CreateCourseFormComponent = ({
               { label: "Advance", value: "ADVANCE" },
             ]}
           />
+        </div>
 
-          {/* <CustomFormField
+        <div className="grid grid-cols-2 gap-x-4">
+          <CustomSelectFormField
             control={form.control}
-            fieldName="maxPoints"
+            fieldName="courseAvailability"
+            label="Course Availablity"
+            placeholder="Select a category"
+            options={[
+              { label: "Free", value: "FREE" },
+              { label: "Paid", value: "PAID" },
+              { label: "Partial", value: "Partial" },
+            ]}
+          />
+
+          <CustomFormField
+            control={form.control}
+            fieldName="price"
             inputType="number"
-            label="Max Points"
-            placeholder="Max Points"
-          /> */}
+            label="Price"
+            placeholder="Price"
+          />
         </div>
 
         <div className="w-full flex justify-end">

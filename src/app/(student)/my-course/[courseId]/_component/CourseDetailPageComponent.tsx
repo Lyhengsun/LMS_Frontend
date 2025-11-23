@@ -1,20 +1,17 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import {
-  getCourseProgressByCourseIdForStudentAction,
-} from "@/src/action/courseAction";
+import { getCourseProgressByCourseIdForStudentAction } from "@/src/action/courseAction";
 import { CourseCompletionConfetti } from "@/src/components/CourseCompletionConfetti";
 import { LessonCompletionCelebration } from "@/src/components/LessonCompletionCelebration";
 import Course, { CourseProgressResponse, Lesson } from "@/src/type/Course";
-import {
-  ArrowLeft,
-} from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import CourseVideoComponent from "./CourseVideoComponent";
 import { CourseIntroductionComponent } from "./CourseIntroductionComponent";
 import CourseContentComponent from "./CourseContentComponent";
+import PopUpCoursePaymentComponent from "./PopUpCoursePaymentComponent";
 
 const CourseDetailPageComponent = ({
   selectedCourse,
@@ -24,6 +21,7 @@ const CourseDetailPageComponent = ({
   const sortedLessons = selectedCourse.lessons.sort(
     (a, b) => a.index - b.index
   );
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedContent, setSelectedContent] = useState<Lesson | null>(null);
   const [courseProgressData, setCourseProgressData] =
     useState<CourseProgressResponse | null>(null);
@@ -137,7 +135,11 @@ const CourseDetailPageComponent = ({
               course={selectedCourse}
               onStartCourse={() => {
                 console.log("start course");
+                if (selectedCourse.isAccessible) {
+                  setSelectedContent(sortedLessons[0]);
+                }
               }}
+              onPurchaseCourse={() => setShowPaymentModal(true)}
             />
           )}
         </div>
@@ -154,19 +156,17 @@ const CourseDetailPageComponent = ({
         </div>
         <div className="flex-1 overflow-y-auto">
           <div className="p-2">
-            {
-              sortedLessons.map((lesson : Lesson, index:number) => 
-                <CourseContentComponent 
-                  key={lesson.id}
-                  index={index}
-                  selectedCourse={selectedCourse}
-                  selectedContent={selectedContent}
-                  lesson={lesson}
-                  courseProgress={courseProgress}
-                  setSelectedContent={setSelectedContent}
-                />
-              )
-            }
+            {sortedLessons.map((lesson: Lesson, index: number) => (
+              <CourseContentComponent
+                key={lesson.id}
+                index={index}
+                selectedCourse={selectedCourse}
+                selectedContent={selectedContent}
+                lesson={lesson}
+                courseProgress={courseProgress}
+                setSelectedContent={setSelectedContent}
+              />
+            ))}
           </div>
         </div>
       </div>
@@ -185,6 +185,12 @@ const CourseDetailPageComponent = ({
           setShowCourseCompletion(false);
           handleVideoClose();
         }}
+      />
+
+      <PopUpCoursePaymentComponent
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        course={selectedCourse}
       />
     </div>
   );

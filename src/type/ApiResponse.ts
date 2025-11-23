@@ -5,6 +5,7 @@ type ApiResponse<T> = {
   code: number;
   success: boolean;
   instant: string;
+  detail: string;
 };
 
 export default ApiResponse;

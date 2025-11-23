@@ -22,6 +22,7 @@ const CustomSelectFormField = ({
   label,
   placeholder,
   description = null,
+  defaultValue = null,
   options,
 }: {
   control: any;
@@ -29,6 +30,7 @@ const CustomSelectFormField = ({
   label: string;
   placeholder: string;
   description?: string | null;
+  defaultValue?: string| null;
   options: Array<{ label: string; value: string }>;
 }) => {
   return (
@@ -38,7 +40,7 @@ const CustomSelectFormField = ({
       render={({ field }) => (
         <FormItem>
           <FormLabel>{label}</FormLabel>
-          <Select onValueChange={field.onChange} defaultValue={field.value}>
+          <Select onValueChange={field.onChange} defaultValue={defaultValue ? defaultValue : field.value}>
             <FormControl>
               <SelectTrigger className="w-full">
                 <SelectValue  placeholder={placeholder} />

@@ -112,7 +112,9 @@ export const Sidebar = ({ role = "student" }: { role?: string }) => {
     !isQuizTakingPage && (
       <div className="w-64 bg-white shadow-sm border-r border-gray-200 h-screen flex flex-col">
         {/* Logo */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-6 border-b border-gray-200 hover:cursor-pointer" onClick={() => {
+          router.push("/");
+        }} >
           <div className="flex items-center">
             <div className="w-10 h-9 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
               <span className="text-white font-bold text-sm">

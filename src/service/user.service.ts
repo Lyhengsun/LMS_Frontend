@@ -1,5 +1,5 @@
 import headerToken from "../app/api/headerToken";
-import User from "../type/User";
+import User, { UpdateProfileRequest } from "../type/User";
 
 export const getAllUserForAdminService = async (
   page: number = 1,
@@ -81,7 +81,7 @@ export const disableUserByIdService = async (
 export const getCurrentUserService = async () => {
   const header = await headerToken();
   try {
-    const res = await fetch(`${process.env.BASE_API_URL}/app_users`, {
+    const res = await fetch(`${process.env.BASE_API_URL}/app-users`, {
       headers: header as any,
       next: { tags: ["currentUser"] },
     });
@@ -89,12 +89,37 @@ export const getCurrentUserService = async () => {
     const data = await res.json();
 
     // console.log("current user : ", data);
-    
+
     if (!data) {
       throw new Error("get current user service fail");
     }
     return data.payload as User;
   } catch (error) {
     console.log("getCurrentUserService error : ", error);
+  }
+};
+
+export const updateCurrentUserProfileService = async (
+  imageUrl: string | null,
+  request: UpdateProfileRequest
+) => {
+  const header = await headerToken();
+  const url = `${process.env.BASE_API_URL}/app-users`;
+  try {
+    const res = await fetch(url, {
+      headers: header as HeadersInit,
+      method: "PUT",
+      body: JSON.stringify({
+        avatarUrl: imageUrl,
+        ...request,
+      }),
+    });
+    const data = await res.json();
+    if (!data) {
+      throw new Error("update current user profile failed");
+    }
+    return data.payload as User;
+  } catch (error) {
+    console.log("updateCurrentUserProfileService error: ", error);
   }
 };

@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { createCourseContentAction } from "@/src/action/courseAction";
 import { uploadVideoAction } from "@/src/action/fileAction";
 import CustomFormField from "@/src/app/_components/CustomFormField";
+import CustomSelectFormField from "@/src/app/_components/CustomSelectFormField";
 import { createCourseContentSchema } from "@/src/lib/zod/courseSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImageIcon, Plus, VideoIcon } from "lucide-react";
@@ -36,6 +37,7 @@ const CreateCourseContentFormComponent = ({
       courseContentName: "",
       durationMinutes: "1",
       points: "10",
+      requirePayment: "false"
     },
   });
 
@@ -86,7 +88,7 @@ const CreateCourseContentFormComponent = ({
           setFile(null);
           onOpenChange(false);
         } else {
-          toast.error("Failed to upload the new lesson");
+          toast.error( courseContentRes?.message as string || "Failed to upload the new lesson");
         }
       } else {
         toast.error("Failed to upload video");
@@ -154,6 +156,7 @@ const CreateCourseContentFormComponent = ({
           />
         </div>
 
+        <div className="grid grid-cols-2 gap-x-4">
         <CustomFormField
           control={form.control}
           fieldName="courseContentName"
@@ -161,8 +164,6 @@ const CreateCourseContentFormComponent = ({
           placeholder="Lesson name"
           disabled={isSubmitting}
         />
-
-        <div className="grid grid-cols-2 gap-x-4">
           <CustomFormField
             control={form.control}
             inputType="number"
@@ -171,13 +172,26 @@ const CreateCourseContentFormComponent = ({
             placeholder="Lesson duration"
             disabled={isSubmitting}
           />
+        </div>
 
+        <div className="grid grid-cols-2 gap-x-4">
           <CustomFormField
             control={form.control}
             fieldName="points"
             inputType="number"
             label="Points"
             placeholder="Points"
+          />
+
+          <CustomSelectFormField
+            control={form.control}
+            fieldName="requirePayment"
+            label="Require Payment"
+            placeholder="require payment"
+            options={[
+              { label: "True", value: "true" },
+              { label: "False", value: "false" },
+            ]}
           />
         </div>
 

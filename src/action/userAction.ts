@@ -7,8 +7,10 @@ import {
   disableUserByIdService,
   getAllUserForAdminService,
   getCurrentUserService,
+  updateCurrentUserProfileService,
 } from "../service/user.service";
-import User from "../type/User";
+import User, { UpdateProfileRequest } from "../type/User";
+import { success } from "zod";
 
 export const getAllUserForAdminAction = async (
   page: number,
@@ -76,3 +78,12 @@ export const getCurrentUserAction = async () => {
     return { success: false, message: error};
   }
 };
+
+export const updateCurrentUserProfileAction = async (imageUrl: string | null, request : UpdateProfileRequest) => {
+  try {
+    const data = await updateCurrentUserProfileService(imageUrl, request);
+    return {success: true, data: data};
+  } catch (error) {
+    return {success: false, message: error};
+  }
+}

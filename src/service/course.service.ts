@@ -341,6 +341,23 @@ export const deleteCourseByIdService = async (courseId: number) => {
   }
 };
 
+export const deleteCourseContentByIdService = async (courseContentId: number) => {
+  const url = `${process.env.BASE_API_URL}/instructors/courses/course-contents/${courseContentId}`;
+  const header = await headerToken();
+  try {
+    const res = await fetch(url, {
+      headers: header as HeadersInit,
+      method: "DELETE",
+    });
+
+    const data: ApiResponse<null> = await res.json();
+
+    return data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const joinCourseByCourseIdService = async (courseId: number) => {
   const url = `${process.env.BASE_API_URL}/students/courses/${courseId}/joining`;
   const header = await headerToken();
