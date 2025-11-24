@@ -31,7 +31,7 @@ ENV SECURE=true
 
 ENV NODE_ENV=production
 
-ENV BASE_API_URL=http://localhost:8080/api/v1
+ENV BASE_API_URL=http://35.213.147.41:8081/api/v1
 
 # Start the Next.js app
 CMD ["node", "./server.js"]
