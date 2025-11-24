@@ -8,13 +8,13 @@ const nextConfig: NextConfig = {
     }
   },
   env: {
-    BASE_API_URL: "http://localhost:8090/api/v1",
+    BASE_API_URL: "http://35.209.164.72:8081/api/v1",
   },
     images: {
     remotePatterns: [
       {
         protocol: "http",
-        hostname: "localhost",
+        hostname: "35.209.164.72",
         pathname: "/**",
       },
     ],
@@ -25,7 +25,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: "http://localhost:8090/api/:path*",
+        destination: "http://35.209.164.72:8081/api/:path*",
       },
     ];
   },
