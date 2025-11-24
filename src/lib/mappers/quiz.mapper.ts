@@ -40,7 +40,6 @@ export function mapQuizDetailsToQuizRequest(quiz: QuizDetails): QuizRequest {
     level: quiz.level,
     durationMinutes: quiz.durationMinutes,
     maxAttempts: quiz.maxAttempts,
-    passingScore: quiz.passingScore,
     categoryId: quiz.category.id,
     questions: quiz.questions.map(mapQuestionToQuestionRequest),
   };
@@ -66,7 +65,6 @@ export function mapQuizToQuizRequest(
     level: quiz.level,
     durationMinutes: quiz.durationMinutes,
     maxAttempts: quiz.maxAttempts,
-    passingScore: quiz.passingScore,
     categoryId: quiz.category.id,
     questions: questions,
   };
@@ -88,9 +86,9 @@ export function mapQuizDetailsToQuiz(quizDetails: QuizDetails): Quiz {
     level: quizDetails.level,
     durationMinutes: quizDetails.durationMinutes,
     maxAttempts: quizDetails.maxAttempts,
-    passingScore: quizDetails.passingScore,
     questionCount: quizDetails.questions.length,
-    category: quizDetails.category
+    category: quizDetails.category,
+    attemptCount: 0
     // Assuming questionCount is the number of questions
   };
 }
