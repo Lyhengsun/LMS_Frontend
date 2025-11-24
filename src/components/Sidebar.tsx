@@ -40,7 +40,7 @@ const getSidebarItems = (role: string | null): SidebarItem[] => {
           icon: BookOpen,
           path: "/admin/course-management",
         },
-        { label: "Settings", icon: Settings, path: "/admin/settings" },
+        { label: "Profile", icon: Settings, path: "/admin/profile" },
       ];
     case "instructor":
       return [
